@@ -18,6 +18,7 @@
 #include <fs_info.h>
 
 #include "ResourceLoader.h"
+#include "TimeInterval.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "QueryDBManager"
@@ -25,6 +26,61 @@
 const char* kEventDir = "events";
 const char* kCategoryDir = "categories";
 const char* kDirectoryName = "Calendar";
+
+
+static bool
+RecursOnDate(Event* event, const BDate& date)
+{
+	BDate firstDate(event->GetStartDateTime());
+	if (date < firstDate)
+		return false;
+	if (date == firstDate)
+		return true;
+
+	switch (event->GetRecurrence()) {
+		case RECURRENCE_DAILY:
+			return true;
+		case RECURRENCE_WEEKDAYS:
+			return date.DayOfWeek() >= 1 && date.DayOfWeek() <= 5;
+		case RECURRENCE_WEEKENDS:
+			return date.DayOfWeek() >= 6;
+		case RECURRENCE_WEEKLY:
+			return firstDate.Difference(date) % 7 == 0;
+		case RECURRENCE_MONTHLY:
+		{
+			int32 day = firstDate.Day();
+			if (day > date.DaysInMonth())
+				day = date.DaysInMonth();
+			return date.Day() == day;
+		}
+		case RECURRENCE_YEARLY:
+		{
+			if (date.Month() != firstDate.Month())
+				return false;
+			int32 day = firstDate.Day();
+			if (day > date.DaysInMonth())
+				day = date.DaysInMonth();
+			return date.Day() == day;
+		}
+		default:
+			return false;
+	}
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+static BDateTime
+LocalDateTime(time_t value)
+{
+	struct tm localTime;
+	if (localtime_r(&value, &localTime) == NULL)
+		return BDateTime();
+
+	return BDateTime(
+		BDate(localTime.tm_year + 1900, localTime.tm_mon + 1, localTime.tm_mday),
+		BTime(localTime.tm_hour, localTime.tm_min, localTime.tm_sec));
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 QueryDBManager::QueryDBManager()
@@ -35,8 +91,11 @@ QueryDBManager::QueryDBManager()
 
 QueryDBManager::~QueryDBManager()
 {
-	delete (fEventDir, fCategoryDir);
+	delete fEventDir;
+	delete fCategoryDir;
+	delete fTrashDir;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -84,7 +143,10 @@ bool
 QueryDBManager::AddEvent(Event* event)
 {
 	Event* oldEvent = GetEvent(event->GetName(), event->GetStartDateTime());
-	if (oldEvent != NULL && !(oldEvent->GetStatus() & EVENT_DELETED))
+	bool existingEvent
+		= oldEvent != NULL && !(oldEvent->GetStatus() & EVENT_DELETED);
+	delete oldEvent;
+	if (existingEvent)
 		return false;
 
 	BDirectory* parentDir = fEventDir;
@@ -96,14 +158,18 @@ QueryDBManager::AddEvent(Event* event)
 
 	return _EventToFile(event, &evFile);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
 QueryDBManager::UpdateEvent(Event* event, Event* newEvent)
 {
-	entry_ref ref = _GetEventRef(event->GetName(), event->GetStartDateTime());
+	entry_ref ref;
+	if (_GetFileOfId(event->GetId(), NULL, &ref) != B_OK)
+		return false;
 	return UpdateEvent(newEvent, ref);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -132,22 +198,31 @@ QueryDBManager::UpdateNotifiedEvent(const char* id)
 {
 	BFile evFile = BFile();
 	entry_ref ref;
-	_GetFileOfId(id, &evFile, &ref);
+	if (_GetFileOfId(id, &evFile, &ref) != B_OK)
+		return false;
 	if (_EventStatusSwitch(evFile.InitCheck()) != B_OK)
-		return NULL;
+		return false;
 
 	Event* event = _FileToEvent(&ref);
+	if (event == NULL)
+		return false;
 	event->SetStatus(event->GetStatus() | EVENT_NOTIFIED);
-	return _EventToFile(event, &evFile);
+	bool result = _EventToFile(event, &evFile);
+	delete event;
+	return result;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
 QueryDBManager::RemoveEvent(Event* event)
 {
-	entry_ref ref = _GetEventRef(event->GetName(), event->GetStartDateTime());
+	entry_ref ref;
+	if (_GetFileOfId(event->GetId(), NULL, &ref) != B_OK)
+		return false;
 	return RemoveEvent(ref);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -215,18 +290,26 @@ QueryDBManager::RestoreEvent(entry_ref ref)
 Event*
 QueryDBManager::GetEvent(const char* id)
 {
+	if (id == NULL)
+		return NULL;
+
 	entry_ref ref;
-	_GetFileOfId(id, NULL, &ref);
+	if (_GetFileOfId(id, NULL, &ref) != B_OK)
+		return NULL;
 	return _FileToEvent(&ref);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Event*
 QueryDBManager::GetEvent(const char* name, time_t startTime)
 {
 	entry_ref ref = _GetEventRef(name, startTime);
+	if (ref.name == NULL)
+		return NULL;
 	return GetEvent(ref);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Event*
@@ -297,13 +380,98 @@ QueryDBManager::GetEventsInInterval(time_t start, time_t end, bool ignoreHidden)
 
 	while (query.GetNextRef(&ref) == B_OK) {
 		event = _FileToEvent(&ref);
+		if (event == NULL)
+			continue;
+		if (!TimeIntervalsOverlap(event->GetStartDateTime(),
+				event->GetEndDateTime(), start, end)) {
+			delete event;
+			continue;
+		}
+		if (event->GetRecurrence() != RECURRENCE_NONE) {
+			delete event;
+			continue;
+		}
 		uint16 status = event->GetStatus();
 		bool hidden = (status & EVENT_DELETED) || (status & EVENT_HIDDEN);
 		if (ignoreHidden == false || ignoreHidden == true && hidden == false)
 			events->AddItem(event);
+		else
+			delete event;
 	}
+
+	_AddRecurringEvents(events, start, end, ignoreHidden);
 	return events;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+QueryDBManager::_AddRecurringEvents(EventList* events, time_t start, time_t end,
+	bool ignoreHidden)
+{
+	BQuery query;
+	query.SetVolume(&fQueryVolume);
+	query.PushAttr("Event:Recurrence");
+	query.PushInt32(RECURRENCE_NONE);
+	query.PushOp(B_GT);
+	query.Fetch();
+
+	entry_ref ref;
+	while (query.GetNextRef(&ref) == B_OK) {
+		Event* master = _FileToEvent(&ref);
+		if (master == NULL)
+			continue;
+
+		uint16 status = master->GetStatus();
+		bool hidden = (status & EVENT_DELETED) || (status & EVENT_HIDDEN);
+		if (ignoreHidden && hidden) {
+			delete master;
+			continue;
+		}
+
+		BDateTime masterStartDateTime
+			= LocalDateTime(master->GetStartDateTime());
+		BDateTime masterEndDateTime = LocalDateTime(master->GetEndDateTime());
+		int32 daySpan = masterStartDateTime.Date().Difference(
+			masterEndDateTime.Date());
+		if (daySpan < 0)
+			daySpan = 0;
+
+		BDate date(start);
+		date.AddDays(-daySpan);
+		if (date < masterStartDateTime.Date())
+			date = masterStartDateTime.Date();
+		BDate lastDate(end);
+
+		while (date <= lastDate) {
+			if (RecursOnDate(master, date)) {
+				time_t occurrenceStart
+					= BDateTime(date, masterStartDateTime.Time()).Time_t();
+				BDate occurrenceEndDate(date);
+				occurrenceEndDate.AddDays(daySpan);
+				time_t occurrenceEnd = BDateTime(
+					occurrenceEndDate, masterEndDateTime.Time()).Time_t();
+
+				if (occurrenceEnd >= start && occurrenceStart <= end) {
+					Event* occurrence = new Event(*master);
+					occurrence->SetStartDateTime(occurrenceStart);
+					occurrence->SetEndDateTime(occurrenceEnd);
+					if (occurrence->IsReminded()) {
+						time_t reminderOffset = master->GetStartDateTime()
+							- master->GetReminderTime();
+						occurrence->SetReminderTime(
+							occurrenceStart - reminderOffset);
+					}
+					events->AddItem(occurrence);
+				}
+			}
+			date.AddDays(1);
+		}
+
+		delete master;
+	}
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 EventList*
@@ -375,14 +543,24 @@ QueryDBManager::AddCategory(Category* category)
 {
 	if (BString(category->GetName()).CountChars() < 3)
 		return false;
-	if (GetCategory(category->GetName()) != NULL)
+	Category* existingCategory = GetCategory(category->GetName());
+	if (existingCategory != NULL) {
+		delete existingCategory;
 		return false;
+	}
 
 	BString color = category->GetHexColor();
 	CategoryList* categories = GetAllCategories();
-	for (int i = 0; i < categories->CountItems(); i++)
-		if (color == ((Category*) categories->ItemAt(i))->GetHexColor())
-			return false;
+	bool duplicateColour = false;
+	for (int i = 0; i < categories->CountItems(); i++) {
+		if (color == ((Category*) categories->ItemAt(i))->GetHexColor()) {
+			duplicateColour = true;
+			break;
+		}
+	}
+	delete categories;
+	if (duplicateColour)
+		return false;
 
 	BFile catFile = BFile();
 	status_t result
@@ -393,6 +571,7 @@ QueryDBManager::AddCategory(Category* category)
 
 	return _CategoryToFile(category, &catFile);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -401,13 +580,14 @@ QueryDBManager::UpdateCategory(Category* category, Category* newCategory)
 	entry_ref ref = _GetCategoryRef(category->GetName());
 	BFile catFile = BFile(&ref, B_READ_WRITE);
 	if (_CategoryStatusSwitch(catFile.InitCheck()) != B_OK)
-		return NULL;
+		return false;
 
 	if (category->GetName() != newCategory->GetName())
 		_ReplaceCategory(category->GetName(), newCategory->GetName());
 
 	return _CategoryToFile(newCategory, &catFile);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Category*
@@ -497,15 +677,18 @@ QueryDBManager::RemoveCategory(entry_ref categoryRef)
 	BString catName = BString();
 	BNode(&entry).ReadAttrString("Category:Name", &catName);
 
-	EventList* ev
-		= GetEventsOfCategory(new Category(catName, BString("FFFFFF")));
-	if (ev->CountItems() > 0)
+	Category category(catName, BString("FFFFFF"));
+	EventList* events = GetEventsOfCategory(&category);
+	bool categoryInUse = events->CountItems() > 0;
+	delete events;
+	if (categoryInUse)
 		return false;
 
 	if (_CategoryStatusSwitch(entry.Remove()) == B_OK)
 		return true;
 	return false;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 entry_ref
@@ -564,6 +747,9 @@ QueryDBManager::_GetCategoryRef(const char* name)
 status_t
 QueryDBManager::_GetFileOfId(const char* id, BFile* file, entry_ref* ref)
 {
+	if (id == NULL)
+		return B_BAD_VALUE;
+
 	BQuery query;
 	query.SetVolume(&fQueryVolume);
 
@@ -574,7 +760,9 @@ QueryDBManager::_GetFileOfId(const char* id, BFile* file, entry_ref* ref)
 	entry_ref foundRef;
 	status_t result = query.Fetch();
 
-	if (result == B_OK && query.GetNextRef(&foundRef) == B_OK) {
+	if (result == B_OK)
+		result = query.GetNextRef(&foundRef);
+	if (result == B_OK) {
 		if (file != NULL)
 			*file = BFile(&foundRef, B_READ_WRITE);
 		if (ref != NULL)
@@ -582,6 +770,7 @@ QueryDBManager::_GetFileOfId(const char* id, BFile* file, entry_ref* ref)
 	}
 	return result;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Category*
@@ -603,7 +792,12 @@ QueryDBManager::_FileToCategory(BFile* file)
 Event*
 QueryDBManager::_FileToEvent(entry_ref* ref)
 {
+	if (ref == NULL || ref->name == NULL)
+		return NULL;
+
 	BNode node(ref);
+	if (node.InitCheck() != B_OK)
+		return NULL;
 	BEntry entry(ref);
 	if (node.InitCheck() != B_OK || entry.InitCheck() != B_OK)
 		return NULL;
@@ -624,9 +818,12 @@ QueryDBManager::_FileToEvent(entry_ref* ref)
 	time_t start = time(NULL);
 	time_t end = time(NULL);
 	time_t updated = time(NULL);
+	int32 recurrence = RECURRENCE_NONE;
 	node.ReadAttr("Event:Start", B_TIME_TYPE, 0, &start, sizeof(time_t));
 	node.ReadAttr("Event:End", B_TIME_TYPE, 0, &end, sizeof(time_t));
 	node.ReadAttr("Event:Updated", B_TIME_TYPE, 0, &updated, sizeof(time_t));
+	node.ReadAttr("Event:Recurrence", B_INT32_TYPE, 0, &recurrence,
+		sizeof(int32));
 
 	bool allDay = false;
 	time_t dayStart = BDateTime(BDate(start), BTime(0, 0, 0)).Time_t();
@@ -651,10 +848,14 @@ QueryDBManager::_FileToEvent(entry_ref* ref)
 	if (fTrashDir->Contains(&entry) == true)
 		status |= EVENT_DELETED;
 
-	return new Event(name.String(), place.String(), desc.String(), allDay,
-		start, end, EnsureCategory(catName.String()), reminded, reminder,
-		updated, status, idStr.String());
+	Category* category = EnsureCategory(catName.String());
+	Event* event = new Event(name.String(), place.String(), desc.String(), allDay,
+		start, end, category, reminded, reminder, updated, status, idStr.String(),
+		recurrence);
+	delete category;
+	return event;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -755,6 +956,10 @@ QueryDBManager::_EventToFile(Event* event, BFile* file)
 
 	time_t end = event->GetEndDateTime();
 	file->WriteAttr("Event:End", B_TIME_TYPE, 0, &end, sizeof(time_t));
+
+	int32 recurrence = event->GetRecurrence();
+	file->WriteAttr("Event:Recurrence", B_INT32_TYPE, 0, &recurrence,
+		sizeof(int32));
 
 	time_t reminder = event->GetReminderTime();
 
@@ -1013,6 +1218,8 @@ QueryDBManager::_EventMimetype()
 	_AddAttribute(info, "Event:Updated", "Updated", B_TIME_TYPE, true, 150);
 	_AddAttribute(info, "Event:Reminder", "Reminder", B_TIME_TYPE, true, 150);
 	_AddAttribute(info, "Event:Status", "Status", B_STRING_TYPE, true, 50);
+	_AddAttribute(info, "Event:Recurrence", "Recurrence", B_INT32_TYPE, true,
+		100);
 	_AddAttribute(info, "Calendar:ID", "ID", B_STRING_TYPE, true, 100);
 
 	const void* icon = LoadVectorIcon("EVENT_ICON", &iconLength);
@@ -1044,10 +1251,12 @@ QueryDBManager::_AddIndices()
 		fs_create_index(device, "Event:Updated", B_INT32_TYPE, 0);
 		fs_create_index(device, "Event:Reminder", B_INT32_TYPE, 0);
 		fs_create_index(device, "Event:Status", B_STRING_TYPE, 0);
+		fs_create_index(device, "Event:Recurrence", B_INT32_TYPE, 0);
 		fs_create_index(device, "Calendar:ID", B_STRING_TYPE, 0);
 		fs_create_index(device, "Category:Name", B_STRING_TYPE, 0);
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

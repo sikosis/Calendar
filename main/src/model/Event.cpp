@@ -12,7 +12,8 @@
 Event::Event(const char* name, const char* place, const char* description,
 	bool allday, time_t start, time_t end, Category* category,
 	bool reminded, time_t reminderTime, time_t updated /*=time(NULL)*/,
-	uint16 status /*= 0 */, const char* id /*= NULL*/)
+	uint16 status /*= 0 */, const char* id /*= NULL*/,
+	uint8 recurrence /*= RECURRENCE_NONE*/)
 {
 	fName = name;
 	fPlace = place;
@@ -22,6 +23,7 @@ Event::Event(const char* name, const char* place, const char* description,
 	fEnd = end;
 	fUpdated = updated;
 	fStatus = status;
+	SetRecurrence(recurrence);
 
 	fCategory = new Category(*category);
 
@@ -33,6 +35,7 @@ Event::Event(const char* name, const char* place, const char* description,
 	else
 		fId = id;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Event::Event(Event& event)
@@ -40,7 +43,7 @@ Event::Event(Event& event)
 	fName = event.GetName();
 	fPlace = event.GetPlace();
 	fId = event.GetId();
-	fCategory = event.GetCategory();
+	fCategory = new Category(*event.GetCategory());
 	fDescription = event.GetDescription();
 	fAllDay = event.IsAllDay();
 	fStart = event.GetStartDateTime();
@@ -49,7 +52,44 @@ Event::Event(Event& event)
 	fStatus = event.GetStatus();
 	fReminded = event.IsReminded();
 	fReminderTime = event.GetReminderTime();
+	fRecurrence = event.GetRecurrence();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+Event::~Event()
+{
+	delete fCategory;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+Event&
+Event::operator=(Event& event)
+{
+	if (this == &event)
+		return *this;
+
+	Category* category = new Category(*event.GetCategory());
+
+	fName = event.GetName();
+	fPlace = event.GetPlace();
+	fId = event.GetId();
+	fDescription = event.GetDescription();
+	fAllDay = event.IsAllDay();
+	fStart = event.GetStartDateTime();
+	fEnd = event.GetEndDateTime();
+	fUpdated = event.GetUpdated();
+	fStatus = event.GetStatus();
+	fReminded = event.IsReminded();
+	fReminderTime = event.GetReminderTime();
+	fRecurrence = event.GetRecurrence();
+
+	delete fCategory;
+	fCategory = category;
+	return *this;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 time_t
@@ -196,6 +236,22 @@ Event::SetReminded(bool reminded)
 {
 	fReminded = reminded;
 }
+
+
+uint8
+Event::GetRecurrence() const
+{
+	return fRecurrence;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+Event::SetRecurrence(uint8 recurrence)
+{
+	fRecurrence = recurrence < RECURRENCE_COUNT ? recurrence : RECURRENCE_NONE;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 time_t
 Event::GetReminderTime() const

@@ -17,7 +17,6 @@ class BCheckBox;
 class BMenu;
 class BMenuField;
 class BPopUpMenu;
-class BRadioButton;
 class BStringView;
 class BTextControl;
 class BTextView;
@@ -62,7 +61,6 @@ public:
 private:
 	void			_InitInterface();
 	void			_PopulateWithEvent(Event* event);
-	void			_DisableControls();
 	void			_UpdateCategoryMenu();
 	void			_ShowPopUpCalendar(int8 which);
 
@@ -70,8 +68,6 @@ private:
 	static const uint32 kCancelPressed = 1001;
 	static const uint32 kSavePressed = 1002;
 	static const uint32 kAllDayPressed = 1003;
-	static const uint32 kOptEveryMonth = 1004;
-	static const uint32 kOptEveryYear = 1005;
 	static const uint32 kReminderPressed = 1006;
 
 	BTextControl*	fTextName;
@@ -89,9 +85,11 @@ private:
 	BMenu*			fStartDateEdit;
 	BMenu*			fEndDateEdit;
 	BMenu*			fReminderMenu;
+	BMenu*			fRecurrenceMenu;
 
 	BMenuField*		fCategoryMenuField;
 	BMenuField*		fReminderMenuField;
+	BMenuField*		fRecurrenceMenuField;
 
 	BStringView*	fNameLabel;
 	BStringView*	fPlaceLabel;
@@ -106,9 +104,6 @@ private:
 	BButton*		fDeleteButton;
 	BButton*		fStartCalButton;
 	BButton*		fEndCalButton;
-
-	BRadioButton*	fEveryMonth;
-	BRadioButton*	fEveryYear;
 
 	BCheckBox*		fAllDayCheckBox;
 	BCheckBox*		fCancelledCheckBox;
@@ -125,6 +120,8 @@ private:
 	BDate			fEndDate;
 
 	bool			fNew;
+	bool			fHasEventRef;
+	bool			fOwnsEvent;
 
 	Event*			fEvent;
 	entry_ref		fEventRef;

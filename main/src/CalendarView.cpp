@@ -73,10 +73,12 @@ CalendarView::DrawDay(BView* owner, BRect frame, const char* text,
 		drawnMonth -= 12;
 		drawnYear++;
 	}
-	BDate drawnDate = BDate(Date().Year(), drawnMonth, drawnDay);
+	BDate drawnDate = BDate(drawnYear, drawnMonth, drawnDay);
 
-	int eventCount
-		= fDBManager->GetEventsOfDay(drawnDate, !fMarkHidden)->CountItems();
+	EventList* drawnEvents
+		= fDBManager->GetEventsOfDay(drawnDate, !fMarkHidden);
+	int eventCount = drawnEvents->CountItems();
+	delete drawnEvents;
 	if (isEnabled == false && eventCount != 0)
 		eventCount = 1;
 
@@ -105,6 +107,7 @@ CalendarView::DrawDay(BView* owner, BRect frame, const char* text,
 	isHighlight = (eventCount > 0 && isEnabled == true);
 	_DrawItem(owner, frame, text, isHighlight, focus, bgColor, textColor);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

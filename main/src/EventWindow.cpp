@@ -6,7 +6,6 @@
 #include "EventWindow.h"
 
 #include <time.h>
-#include <string>
 
 #include <Alert.h>
 #include <Application.h>
@@ -26,7 +25,6 @@
 #include <MenuField.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
-#include <RadioButton.h>
 #include <Screen.h>
 #include <SeparatorView.h>
 #include <StringView.h>
@@ -38,10 +36,12 @@
 #include "App.h"
 #include "CalendarMenuWindow.h"
 #include "CategoryEditWindow.h"
+#include "ClockTime.h"
 #include "Event.h"
 #include "MainWindow.h"
 #include "Preferences.h"
 #include "QueryDBManager.h"
+#include "ReminderTime.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "EventWindow"
@@ -52,6 +52,8 @@ EventWindow::EventWindow()
 	BWindow(((App*) be_app)->GetPreferences()->fEventWindowRect,
 		B_TRANSLATE("Event manager"), B_TITLED_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
+	fHasEventRef(false),
+	fOwnsEvent(false),
 	fEvent(NULL)
 {
 	_InitInterface();
@@ -64,15 +66,20 @@ EventWindow::EventWindow()
 	}
 
 	fNew = true;
-	_DisableControls();
+	fTextStartDate->SetEnabled(false);
+	fTextEndDate->SetEnabled(false);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 EventWindow::~EventWindow()
 {
 	delete fDBManager;
 	delete fCategoryList;
+	if (fOwnsEvent)
+		delete fEvent;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -148,23 +155,34 @@ EventWindow::FrameMoved(BPoint newPosition)
 void
 EventWindow::SetEvent(Event* event)
 {
-	fEvent = event;
-	if (fDBManager->GetEvent(event->GetName(), event->GetStartDateTime())
-		!= NULL)
+	if (event == NULL)
+		return;
+
+	Event* storedEvent = fDBManager->GetEvent(event->GetId());
+	if (storedEvent != NULL) {
+		fEvent = storedEvent;
+		fOwnsEvent = true;
 		fNew = false;
-	_PopulateWithEvent(event);
+	} else
+		fEvent = event;
+	_PopulateWithEvent(fEvent);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
 EventWindow::SetEvent(entry_ref ref)
 {
 	fEventRef = ref;
+	fHasEventRef = true;
 	fEvent = fDBManager->GetEvent(ref);
-	if (fEvent != NULL)
+	if (fEvent != NULL) {
+		fOwnsEvent = true;
 		fNew = false;
+	}
 	_PopulateWithEvent(fEvent);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -263,11 +281,23 @@ EventWindow::OnSaveClick()
 	BTime endTime;
 
 	if (fAllDayCheckBox->Value() == B_CONTROL_OFF) {
-		BTimeFormat timeFormat;
-		timeFormat.SetTimeFormat(B_SHORT_TIME_FORMAT, "HH:mm");
-		timeFormat.Parse(
-			fTextStartTime->Text(), B_SHORT_TIME_FORMAT, startTime);
-		timeFormat.Parse(fTextEndTime->Text(), B_SHORT_TIME_FORMAT, endTime);
+		int startHour;
+		int startMinute;
+		int endHour;
+		int endMinute;
+		if (!ParseClockTime(fTextStartTime->Text(), startHour, startMinute)
+			|| !ParseClockTime(fTextEndTime->Text(), endHour, endMinute)) {
+			BAlert* alert = new BAlert(B_TRANSLATE("Error"),
+				B_TRANSLATE("Please enter valid start and end times in HH:mm "
+					"(24 hour) format."),
+				NULL, B_TRANSLATE("OK"), NULL, B_WIDTH_AS_USUAL,
+				B_WARNING_ALERT);
+			alert->SetShortcut(0, B_ESCAPE);
+			alert->Go();
+			return;
+		}
+		startTime.SetTime(startHour, startMinute, 0);
+		endTime.SetTime(endHour, endMinute, 0);
 	} else {
 		startTime.SetTime(0, 0, 0);
 		endTime.SetTime(23, 59, 59, 59);
@@ -301,23 +331,24 @@ EventWindow::OnSaveClick()
 	else if (fCancelledCheckBox->Value() == B_CONTROL_OFF)
 		status &= ~EVENT_CANCELLED;
 
-	Category* category = NULL;
 	BMenuItem* item = fCategoryMenu->FindMarked();
 	int32 index = fCategoryMenu->IndexOf(item);
 	Category* c = fCategoryList->ItemAt(index);
-	category = new Category(*c);
+	Category category(*c);
+	uint8 recurrence = fRecurrenceMenu->IndexOf(fRecurrenceMenu->FindMarked());
 
 	if (fReminderCheckBox->Value() == B_CONTROL_ON) {
-		time_t deltaTime = std::stoi(fTextReminderTime->Text());
 		BMenuItem* menuItem = fReminderMenu->FindMarked();
 		int32 index = fReminderMenu->IndexOf(menuItem);
-
-		if (index == 0)			// hours
-			deltaTime *= 3600;
-		else if (index == 1)		// minutes
-			deltaTime *= 60;
-
-		reminderTime = start - deltaTime;
+		if (!CalculateReminderTime(fTextReminderTime->Text(), index, start,
+				reminderTime)) {
+			BAlert* alert = new BAlert(B_TRANSLATE("Error"),
+				B_TRANSLATE("Please enter a valid reminder time."), NULL,
+				B_TRANSLATE("OK"), NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+			alert->SetShortcut(0, B_ESCAPE);
+			alert->Go();
+			return;
+		}
 	} else {
 		reminderTime = -1;
 	}
@@ -325,16 +356,16 @@ EventWindow::OnSaveClick()
 
 	Event newEvent(fTextName->Text(), fTextPlace->Text(),
 		fTextDescription->Text(), fAllDayCheckBox->Value() == B_CONTROL_ON,
-		start, end, category, fReminderCheckBox->Value() == B_CONTROL_ON,
-		reminderTime, time(NULL), status);
+		start, end, &category, fReminderCheckBox->Value() == B_CONTROL_ON,
+		reminderTime, time(NULL), status,
+		fEvent != NULL ? fEvent->GetId() : NULL, recurrence);
 
 	if ((fNew == true) && (fDBManager->AddEvent(&newEvent)))
 		CloseWindow();
 	else if (fNew == false) {
-		if (fEventRef.name == NULL
-			&& fDBManager->UpdateEvent(fEvent, &newEvent))
+		if (!fHasEventRef && fDBManager->UpdateEvent(fEvent, &newEvent))
 			CloseWindow();
-		else if (fEventRef.name != NULL
+		else if (fHasEventRef
 			&& fDBManager->UpdateEvent(&newEvent, fEventRef))
 			CloseWindow();
 		else {
@@ -348,6 +379,7 @@ EventWindow::OnSaveClick()
 		}
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -372,12 +404,13 @@ EventWindow::OnDeleteClick()
 			return;
 	}
 
-	if (fEventRef.name != NULL)
+	if (fHasEventRef)
 		fDBManager->UpdateEvent(&newEvent, fEventRef);
 	else
 		fDBManager->UpdateEvent(fEvent, &newEvent);
 	CloseWindow();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -459,11 +492,6 @@ EventWindow::_InitInterface()
 	fReminderCheckBox = new BCheckBox(NULL,
 		new BMessage(kReminderPressed));
 
-	fEveryMonth = new BRadioButton(
-		"EveryMonth", B_TRANSLATE("Monthly"), new BMessage(kOptEveryMonth));
-	fEveryYear = new BRadioButton(
-		"EveryYear", B_TRANSLATE("Yearly"), new BMessage(kOptEveryYear));
-
 	fNameLabel = new BStringView("NameLabel", B_TRANSLATE("Name:"));
 	fPlaceLabel = new BStringView("PlaceLabel", B_TRANSLATE("Place:"));
 	fDescriptionLabel = new BStringView(
@@ -520,6 +548,19 @@ EventWindow::_InitInterface()
 	fReminderMenu->SetLabelFromMarked(true);
 	fReminderMenu->ItemAt(1)->SetMarked(true);
 
+	fRecurrenceMenu = new BMenu("RecurrenceMenu");
+	fRecurrenceMenu->AddItem(
+		new BMenuItem(B_TRANSLATE("Does not repeat"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Daily"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Weekdays"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Weekends"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Weekly"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Monthly"), NULL));
+	fRecurrenceMenu->AddItem(new BMenuItem(B_TRANSLATE("Yearly"), NULL));
+	fRecurrenceMenu->SetRadioMode(true);
+	fRecurrenceMenu->SetLabelFromMarked(true);
+	fRecurrenceMenu->ItemAt(RECURRENCE_NONE)->SetMarked(true);
+
 	fStartDateEdit = new BMenu(B_TRANSLATE("Start date"));
 	fEndDateEdit = new BMenu(B_TRANSLATE("End date"));
 
@@ -529,6 +570,8 @@ EventWindow::_InitInterface()
 	fReminderMenuField
 		= new BMenuField("ReminderMenuField", NULL, fReminderMenu);
 	fReminderMenuField->SetEnabled(false);
+	fRecurrenceMenuField
+		= new BMenuField("RecurrenceMenuField", NULL, fRecurrenceMenu);
 
 	BBox* fStatusBox = new BBox("StatusBox");
 	BLayoutBuilder::Group<>(fStatusBox, B_VERTICAL, B_USE_HALF_ITEM_SPACING)
@@ -545,10 +588,7 @@ EventWindow::_InitInterface()
 	BLayoutBuilder::Group<>(fRecurrenceBox, B_VERTICAL, B_USE_HALF_ITEM_SPACING)
 		.SetInsets(B_USE_ITEM_INSETS)
 		.AddStrut(B_USE_ITEM_SPACING)
-		.AddGroup(B_HORIZONTAL)
-		.Add(fEveryMonth)
-		.Add(fEveryYear)
-		.End()
+		.Add(fRecurrenceMenuField)
 		.End();
 	fRecurrenceBox->SetLabel(B_TRANSLATE("Recurrence"));
 
@@ -692,7 +732,9 @@ EventWindow::_PopulateWithEvent(Event* event)
 			deltaTime /= 60;
 		}
 
-		fTextReminderTime->SetText(std::to_string(deltaTime).c_str());
+		BString reminderText;
+		reminderText << (int64)deltaTime;
+		fTextReminderTime->SetText(reminderText.String());
 
 		fReminderMenu->ItemAt(index)->SetMarked(true);
 	} else {
@@ -700,6 +742,11 @@ EventWindow::_PopulateWithEvent(Event* event)
 		fTextReminderTime->SetEnabled(false);
 		fReminderMenuField->SetEnabled(false);
 	}
+
+	uint8 recurrence = event->GetRecurrence();
+	if (recurrence >= RECURRENCE_COUNT)
+		recurrence = RECURRENCE_NONE;
+	fRecurrenceMenu->ItemAt(recurrence)->SetMarked(true);
 
 	uint16 status = 0;
 	if (event != NULL)
@@ -711,6 +758,7 @@ EventWindow::_PopulateWithEvent(Event* event)
 
 	fDeleteButton->SetEnabled(fNew == false);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -744,16 +792,6 @@ EventWindow::_UpdateCategoryMenu()
 		fCategoryMenu->ItemAt(0)->SetMarked(true);
 
 	delete selectedCategory;
-}
-
-
-void
-EventWindow::_DisableControls()
-{
-	fTextStartDate->SetEnabled(false);
-	fTextEndDate->SetEnabled(false);
-	fEveryMonth->SetEnabled(false);
-	fEveryYear->SetEnabled(false);
 }
 
 

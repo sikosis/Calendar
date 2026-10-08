@@ -20,14 +20,30 @@ enum {
 };
 
 
+enum recurrence_type {
+	RECURRENCE_NONE = 0,
+	RECURRENCE_DAILY,
+	RECURRENCE_WEEKDAYS,
+	RECURRENCE_WEEKENDS,
+	RECURRENCE_WEEKLY,
+	RECURRENCE_MONTHLY,
+	RECURRENCE_YEARLY,
+	RECURRENCE_COUNT
+};
+
+
 class Event
 {
 public:
 				Event(const char* name, const char* place, const char* description,
 					bool allday, time_t start, time_t end, Category* category,
 					bool reminded, time_t reminderTime, time_t updated = time(NULL),
-					uint16 status = 0, const char* id = NULL);
+					uint16 status = 0, const char* id = NULL,
+					uint8 recurrence = RECURRENCE_NONE);
 				Event(Event& event);
+				~Event();
+
+	Event&		operator=(Event& event);
 
 	time_t		GetStartDateTime() const;
 	void		SetStartDateTime(time_t start);
@@ -60,6 +76,8 @@ public:
 
 	bool		IsReminded() const;
 	void		SetReminded(bool reminded);
+	uint8		GetRecurrence() const;
+	void		SetRecurrence(uint8 recurrence);
 
 	bool		Equals(Event& e) const;
 
@@ -76,6 +94,7 @@ private:
 
 	bool		fAllDay;
 	bool		fReminded;
+	uint8		fRecurrence;
 	int16		fStatus;
 
 	Category*	fCategory;

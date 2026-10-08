@@ -184,9 +184,9 @@ CategoryEditWindow::_OnRevertPressed()
 void
 CategoryEditWindow::_CloseWindow()
 {
-	_RefreshWindows();
 	PostMessage(B_QUIT_REQUESTED);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

@@ -101,7 +101,10 @@ EventTabView::MessageReceived(BMessage* message)
 			}
 
 			if (button_index == 0) {
-				Event newEvent(*event);
+				Event* storedEvent = fDBManager->GetEvent(event->GetId());
+				Event* sourceEvent
+					= storedEvent != NULL ? storedEvent : event;
+				Event newEvent(*sourceEvent);
 				newEvent.SetUpdated(time(NULL));
 				if (message->what == kCancelEventMessage
 					&& isCancelled == false)
@@ -120,7 +123,8 @@ EventTabView::MessageReceived(BMessage* message)
 					&& isDeleted == true)
 					newEvent.SetStatus(newEvent.GetStatus() & ~EVENT_DELETED);
 
-				fDBManager->UpdateEvent(event, &newEvent);
+				fDBManager->UpdateEvent(sourceEvent, &newEvent);
+				delete storedEvent;
 				Window()->LockLooper();
 				LoadEvents();
 				Window()->UnlockLooper();
@@ -160,6 +164,7 @@ EventTabView::MessageReceived(BMessage* message)
 			break;
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

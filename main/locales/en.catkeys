@@ -17,6 +17,7 @@ Today	MainWindow		Today
 End date:	EventWindow		End date:
 Category manager	CategoryWindow		Category manager
 The name must have a length greater than 2.	EventWindow		The name must have a length greater than 2.
+Please enter a valid reminder time.	EventWindow		Please enter a valid reminder time.
 There was an error in loading the last sync data.	GoogleEventSyncWindow		There was an error in loading the last sync data.
 Day	MainWindow		Day
 The name must have a length greater than 2.	CategoryEditWindow		The name must have a length greater than 2.
@@ -39,6 +40,11 @@ Default category	PreferenceWindow		Default category
 Google Calendar	MainWindow		Google Calendar
 Last Sync: %status% at %time%.	GoogleEventSyncWindow		Last Sync: %status% at %time%.
 Monthly	EventWindow		Monthly
+Does not repeat	EventWindow		Does not repeat
+Daily	EventWindow		Daily
+Weekdays	EventWindow		Weekdays
+Weekends	EventWindow		Weekends
+Weekly	EventWindow		Weekly
 Google Calendar Sync	GoogleEventSyncWindow		Google Calendar Sync
 Are you sure you want to delete this event?	EventWindow		Are you sure you want to delete this event?
 New category	CategoryEditWindow		New category
@@ -98,6 +104,7 @@ Default	Preferences		Default
 Starts in %remaining%	DayView		Starts in %remaining%
 You don't have any events on this day!	EventListView		You don't have any events on this day!
 Error	EventWindow		Error
+Please enter valid start and end times in HH:mm (24 hour) format.	EventWindow		Please enter valid start and end times in HH:mm (24 hour) format.
 Edit event	MainWindow		Edit event
 Thursday	PreferenceWindow		Thursday
 OK	GoogleEventSyncWindow		OK

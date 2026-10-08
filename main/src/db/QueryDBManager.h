@@ -72,6 +72,8 @@ private:
 	Event*		_FileToEvent(entry_ref* ref);
 	bool		_CategoryToFile(Category* category, BFile* file);
 	bool		_EventToFile(Event* event, BFile* file);
+	void		_AddRecurringEvents(EventList* events, time_t start, time_t end,
+					bool ignoreHidden);
 
 	void		_ReplaceCategory(BString oldCategory, BString newCategory);
 

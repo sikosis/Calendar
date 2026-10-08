@@ -88,7 +88,6 @@ CategoryWindow::MessageReceived(BMessage* message)
 			BFile file;
 			BNodeInfo info;
 			char type[B_FILE_NAME_LENGTH];
-			QueryDBManager DBManager();
 
 			while (message->HasRef("refs", i)) {
 				message->FindRef("refs", i++, &ref);
@@ -138,6 +137,10 @@ CategoryWindow::LoadCategories()
 	delete fCategoryList;
 	fCategoryList = fDBManager->GetAllCategories(((App*) be_app)->GetPreferences()->fDefaultCategory);
 
+	BListItem* item;
+	while ((item = fCategoryListView->RemoveItem((int32)0)) != NULL)
+		delete item;
+
 	Category* category;
 	for (int32 i = 0; i < fCategoryList->CountItems(); i++) {
 		category = ((Category*) fCategoryList->ItemAt(i));
@@ -153,6 +156,7 @@ CategoryWindow::LoadCategories()
 	fCategoryListView->Invalidate();
 	UnlockLooper();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 QueryDBManager*

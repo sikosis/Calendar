@@ -47,9 +47,12 @@ SRCS = \
 	 src/CalendarView.cpp \
 	 src/Preferences.cpp  \
 	 src/SidePanelView.cpp  \
+	 src/utils/ClockTime.cpp  \
 	 src/utils/ColorConverter.cpp  \
 	 src/utils/ICal.cpp  \
+	 src/utils/ReminderTime.cpp  \
 	 src/utils/ResourceLoader.cpp  \
+	 src/utils/TimeInterval.cpp  \
 	 src/model/Category.cpp  \
 	 src/model/Event.cpp \
 	 src/db/QueryDBManager.cpp
@@ -84,7 +87,7 @@ RSRCS = \
 #	- 	if your library does not follow the standard library naming scheme,
 #		you need to specify the path to the library and it's name.
 #		(e.g. for mylib.a, specify "mylib.a" or "path/mylib.a")
-LIBS = be tracker shared localestub sqlite3 bnetapi network netservices $(STDCPPLIBS)
+LIBS = be tracker shared localestub bnetapi network netservices $(STDCPPLIBS)
 
 #	Specify additional paths to directories following the standard libXXX.so
 #	or libXXX.a naming scheme. You can specify full paths or paths relative
