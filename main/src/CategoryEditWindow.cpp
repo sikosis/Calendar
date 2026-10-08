@@ -223,7 +223,7 @@ CategoryEditWindow::_OnOkPressed()
 bool
 CategoryEditWindow::_SaveChanges()
 {
-	if (BString(fCategoryText->Text()).CountChars() > 3) {
+	if (BString(fCategoryText->Text()).CountChars() >= 3) {
 		Category category(fCategoryText->Text(), fPicker->ValueAsColor());
 		CategoryWindow* parent = ((App*) be_app)->categoryWindow();
 
@@ -234,3 +234,4 @@ CategoryEditWindow::_SaveChanges()
 	}
 	return false;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//

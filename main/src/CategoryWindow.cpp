@@ -148,10 +148,12 @@ CategoryWindow::LoadCategories()
 			new CategoryListItem(category->GetName(), category->GetColor()));
 	}
 
-	if (selection < fCategoryList->CountItems())
+	if (selection >= 0 && selection < fCategoryList->CountItems())
 		fCategoryListView->Select(selection);
-	else
-		MessageReceived(new BMessage(kCategorySelected));
+	else {
+		BMessage selectionMessage(kCategorySelected);
+		MessageReceived(&selectionMessage);
+	}
 
 	fCategoryListView->Invalidate();
 	UnlockLooper();
