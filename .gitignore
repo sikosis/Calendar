@@ -1,3 +1,7 @@
 main/objects*/
 daemon/objects*/
+packages/
+tests/clock_time_test
+tests/reminder_time_test
+tests/time_interval_test
 Calendar.pld
