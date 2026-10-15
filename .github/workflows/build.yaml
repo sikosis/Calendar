@@ -2,37 +2,43 @@ name: "haiku-ci"
 on: [push, pull_request]
 
 jobs:
-  build-haiku:
+  build-haiku-r1beta6:
     timeout-minutes: 60
-    runs-on: ${{ matrix.config.runner }}
-    name: build-${{ matrix.config.os }}-${{ matrix.config.version }}-${{ matrix.config.architecture }}
+    runs-on: ubuntu-latest
+    name: build-haiku-r1beta6-x86-64
 
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          # The OS versions supported are specific to the version of the action
-          # https://github.com/cross-platform-actions/action/blob/master/changelog.md
-          - { os: haiku, version: 'r1beta5', runner: 'ubuntu-latest', architecture: 'x86-64' }
-          - { os: haiku, version: 'r1beta5',  runner: 'ubuntu-latest', architecture: 'x86' }
-          - { os: haiku, version: 'nightly', runner: 'ubuntu-latest', architecture: 'x86-64' }
-          - { os: haiku, version: 'nightly',  runner: 'ubuntu-latest', architecture: 'x86' }
+    defaults:
+      run:
+        shell: cpa.sh {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Haiku R1/beta6
+        uses: cross-platform-actions/action@v1.6.0
+        with:
+          operating_system: haiku
+          version: 'r1beta6'
+          architecture: 'x86-64'
+
+      - name: Build package
+        run: |
+          pkgman update -y cmd:gcc makefile_engine gcc_syslibs_devel
+          packaging/build-hpkg.sh
+
+  build-haiku-nightly:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    name: build-haiku-nightly-x86-64
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: korli/action@v0.25.0-haiku4
         with:
-          operating_system: ${{ matrix.config.os }}
-          version: ${{ matrix.config.version }}
-          architecture: ${{ matrix.config.architecture }}
+          operating_system: haiku
+          version: nightly
+          architecture: 'x86-64'
           run: |
-            ssh user@localhost "pkgman update -y cmd:gcc makefile_engine" &&
-            if [[ `uname -m` == BePC ]]; then
-              ssh user@localhost "pkgman update -y gcc_x86_syslibs_devel" &&
-              setarch x86 packaging/build-hpkg.sh
-            else
-              ssh user@localhost "pkgman update -y gcc_syslibs_devel" &&
-              packaging/build-hpkg.sh
-            fi
-           
+            ssh user@localhost "pkgman update -y cmd:gcc makefile_engine gcc_syslibs_devel" &&
+            packaging/build-hpkg.sh
