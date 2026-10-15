@@ -30,6 +30,7 @@ public:
 private:
 	void			_DrawCalendarPage();
 	void			_OpenCalendar();
+	void			_QuitCalendar();
 	void			_ShowContextMenu(BPoint where);
 
 	BDate			fDate;

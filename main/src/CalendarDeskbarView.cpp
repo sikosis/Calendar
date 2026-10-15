@@ -178,35 +178,42 @@ CalendarDeskbarView::_OpenCalendar()
 
 
 void
+CalendarDeskbarView::_QuitCalendar()
+{
+	team_id team = be_roster->TeamFor(kSignature);
+	if (team >= B_OK) {
+		status_t status;
+		BMessenger calendar(kSignature, team, &status);
+		if (status == B_OK)
+			calendar.SendMessage(B_QUIT_REQUESTED);
+	}
+
+	BDeskbar deskbar;
+	deskbar.RemoveItem(kCalendarDeskbarItemName);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 CalendarDeskbarView::_ShowContextMenu(BPoint where)
 {
 	BPopUpMenu* menu = new BPopUpMenu("Calendar deskbar menu", false, false);
 	BMenuItem* openItem = new BMenuItem(B_TRANSLATE("Open Calendar"), NULL);
 	BMenuItem* quitItem = new BMenuItem(B_TRANSLATE("Quit Calendar"), NULL);
-	quitItem->SetEnabled(be_roster->IsRunning(kSignature));
-	BMenuItem* removeItem
-		= new BMenuItem(B_TRANSLATE("Remove from Deskbar"), NULL);
 
 	menu->AddItem(openItem);
 	menu->AddItem(quitItem);
-	menu->AddSeparatorItem();
-	menu->AddItem(removeItem);
 
 	ConvertToScreen(&where);
 	BMenuItem* selected = menu->Go(where, false, true);
-	if (selected == openItem)
-		_OpenCalendar();
-	else if (selected == quitItem) {
-		BMessenger calendar(kSignature);
-		calendar.SendMessage(B_QUIT_REQUESTED);
-	}
-	bool removeFromDeskbar = selected == removeItem;
+	bool openCalendar = selected == openItem;
+	bool quitCalendar = selected == quitItem;
 	delete menu;
 
-	if (removeFromDeskbar) {
-		BDeskbar deskbar;
-		deskbar.RemoveItem(kCalendarDeskbarItemName);
-	}
+	if (openCalendar)
+		_OpenCalendar();
+	else if (quitCalendar)
+		_QuitCalendar();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
