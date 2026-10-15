@@ -3,7 +3,7 @@
 set -eu
 
 version="0.2.0"
-revision="1"
+revision="2"
 scriptDirectory="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 sourceDirectory="$(CDPATH= cd -- "$scriptDirectory/.." && pwd)"
 outputDirectory="$sourceDirectory/packages"

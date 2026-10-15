@@ -29,11 +29,20 @@ CategoryWindow::CategoryWindow()
 	:
 	BWindow(BRect(), B_TRANSLATE("Manage categories"), B_TITLED_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
-	fCategoryEditWindow(NULL)
+	fMainView(NULL),
+	fCategoryListView(NULL),
+	fCategoryScroll(NULL),
+	fNewButton(NULL),
+	fDeleteButton(NULL),
+	fEditButton(NULL),
+	fCategoryEditWindow(NULL),
+	fCategoryList(NULL),
+	fDBManager(NULL)
 {
 	_InitInterface();
 	CenterOnScreen();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 CategoryWindow::~CategoryWindow()
@@ -68,6 +77,9 @@ CategoryWindow::MessageReceived(BMessage* message)
 
 		case kCategorySelected:
 		{
+			if (fEditButton == NULL || fDeleteButton == NULL)
+				break;
+
 			bool enabled = message->GetInt32("index", -1) >= 0;
 			fEditButton->SetEnabled(enabled);
 			fDeleteButton->SetEnabled(enabled);
@@ -181,10 +193,6 @@ CategoryWindow::_InitInterface()
 		"CategoryScroll", fCategoryListView, B_WILL_DRAW, false, true);
 	fCategoryScroll->SetExplicitMinSize(BSize(260, 220));
 
-	fDBManager = new QueryDBManager();
-	fCategoryList = NULL;
-	LoadCategories();
-
 	fCategoryListView->SetSelectionMessage(new BMessage(kCategorySelected));
 	fCategoryListView->SetInvocationMessage(
 		new BMessage(kCategoryEditSelected));
@@ -212,7 +220,11 @@ CategoryWindow::_InitInterface()
 		.SetInsets(B_USE_WINDOW_SPACING)
 		.Add(fMainView)
 		.End();
+
+	fDBManager = new QueryDBManager();
+	LoadCategories();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
