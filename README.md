@@ -1,4 +1,4 @@
-# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar for [Haiku](https://www.haiku-os.org/) ![platform](https://img.shields.io/badge/platform-Haiku-blue) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.6.0-orange)
+# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar [![platform](https://img.shields.io/badge/platform-Haiku-blue)](https://www.haiku-os.org/) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.6.0-orange) [![hey](https://img.shields.io/badge/scripting-hey-teal)](#scripting)
 
 Calendar is a native Haiku application to manage your appointments.
 
