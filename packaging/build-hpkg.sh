@@ -42,9 +42,10 @@ if [ -e "$outputFile" ]; then
 fi
 
 echo "Running portable tests..."
-make -C "$sourceDirectory/tests" test
+make -C "$sourceDirectory/tests" clean test
 
 echo "Building Calendar and binding translations..."
+make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory" clean
 make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory"
 make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory" bindcatalogs
 
