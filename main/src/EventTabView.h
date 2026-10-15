@@ -69,6 +69,7 @@ public:
 private:
 	void			_AddEventList(const char* name, const char* label, int32 tab);
 	void			_PopulateList();
+	BDate			_StartOfWeek(BDate date) const;
 
 	static int		_CompareFunc(const Event* a, const Event* b);
 	bool			_SearchForKeywords(Event* event);

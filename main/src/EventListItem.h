@@ -18,7 +18,8 @@ class Event;
 class EventListItem : public BListItem
 {
 public:
-					EventListItem(Event* event, int32 mode);
+					EventListItem(Event* event, int32 mode,
+						bool groupSeparator = false);
 					~EventListItem();
 
 	virtual void	DrawItem(BView*, BRect, bool);
@@ -33,6 +34,7 @@ private:
 
 	Event*			fEvent;
 	BString			fTimeText;
+	bool			fGroupSeparator;
 };
 
 #endif // EVENTLLISTITEM_H

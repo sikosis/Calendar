@@ -12,6 +12,7 @@
 #include <DateFormat.h>
 #include <DurationFormat.h>
 #include <Font.h>
+#include <LocaleRoster.h>
 #include <MenuItem.h>
 #include <TimeFormat.h>
 
@@ -24,13 +25,15 @@
 #define B_TRANSLATION_CONTEXT "EventListItem"
 
 
-EventListItem::EventListItem(Event* event, int32 mode)
+EventListItem::EventListItem(Event* event, int32 mode, bool groupSeparator)
 	:
+	BListItem(),
 	fEvent(event),
-	BListItem()
+	fGroupSeparator(groupSeparator)
 {
 	_CalcTimeText(mode);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 EventListItem::~EventListItem()
@@ -145,7 +148,14 @@ EventListItem::DrawItem(BView* view, BRect rect, bool complete)
 	view->SetHighColor(
 		tint_color(ui_color(B_CONTROL_BACKGROUND_COLOR), B_DARKEN_1_TINT));
 	view->StrokeLine(rect.LeftBottom(), rect.RightBottom());
+
+	if (fGroupSeparator) {
+		view->SetHighUIColor(B_KEYBOARD_NAVIGATION_COLOR);
+		BRect separator(rect.left, rect.top, rect.right, rect.top + 1);
+		view->FillRect(separator);
+	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -172,7 +182,7 @@ EventListItem::_CalcTimeText(int32 mode)
 {
 	BString startDay, endDay, startTime, endTime, remaining, timePeriod;
 	BTimeFormat timeFormat;
-	BDateFormat dateFormat;
+	BDateFormat dateFormat(BLocaleRoster::Default()->GetDefaultLocale());
 	BDateTime now = BDateTime::CurrentDateTime(B_LOCAL_TIME);
 
 	uint16 status = fEvent->GetStatus();
@@ -185,8 +195,9 @@ EventListItem::_CalcTimeText(int32 mode)
 
 	if (fEvent->IsAllDay() == true)
 		if ((mode & kAgendaView) || (mode & kDateView)) {
-			dateFormat.Format(
-				startDay, fEvent->GetStartDateTime(), B_SHORT_DATE_FORMAT);
+			dateFormat.Format(startDay,
+				BDate(fEvent->GetStartDateTime(), B_LOCAL_TIME),
+				B_SHORT_DATE_FORMAT);
 			BString startday(B_TRANSLATE("All day, %startDay%"));
 			startday.ReplaceAll("%startDay%", startDay);
 			timePeriod << startday;
@@ -217,10 +228,12 @@ EventListItem::_CalcTimeText(int32 mode)
 			} else
 				timePeriod = B_TRANSLATE("Finished!");
 		} else if (mode & kDateView) {
-			dateFormat.Format(
-				startDay, fEvent->GetStartDateTime(), B_SHORT_DATE_FORMAT);
-			dateFormat.Format(
-				endDay, fEvent->GetEndDateTime(), B_SHORT_DATE_FORMAT);
+			dateFormat.Format(startDay,
+				BDate(fEvent->GetStartDateTime(), B_LOCAL_TIME),
+				B_SHORT_DATE_FORMAT);
+			dateFormat.Format(endDay,
+				BDate(fEvent->GetEndDateTime(), B_LOCAL_TIME),
+				B_SHORT_DATE_FORMAT);
 			timePeriod << startTime << ", " << startDay << " - " << endTime
 					   << ", " << endDay;
 		} else
@@ -229,3 +242,4 @@ EventListItem::_CalcTimeText(int32 mode)
 
 	fTimeText = timePeriod;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//

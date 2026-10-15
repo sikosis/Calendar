@@ -9,6 +9,7 @@
 
 #include <Alert.h>
 #include <Catalog.h>
+#include <DateFormat.h>
 #include <ScrollView.h>
 #include <Window.h>
 
@@ -329,6 +330,7 @@ EventTabView::_PopulateList()
 		return;
 
 	list->MakeEmpty();
+	Event* previousEvent = NULL;
 	for (int32 i = 0; i < fEventList->CountItems(); i++) {
 		Event* event = fEventList->ItemAt(i);
 		if (event == NULL)
@@ -341,11 +343,47 @@ EventTabView::_PopulateList()
 			|| !_SearchForKeywords(event))
 			continue;
 
-		EventListItem* item = new EventListItem(event, fMode);
+		bool groupSeparator = false;
+		if (previousEvent != NULL) {
+			BDate previousDate(previousEvent->GetStartDateTime(), B_LOCAL_TIME);
+			BDate eventDate(event->GetStartDateTime(), B_LOCAL_TIME);
+
+			if (Selection() == kWeekTab)
+				groupSeparator = previousDate != eventDate;
+			else if (Selection() == kMonthTab)
+				groupSeparator
+					= _StartOfWeek(previousDate) != _StartOfWeek(eventDate);
+		}
+
+		EventListItem* item
+			= new EventListItem(event, fMode, groupSeparator);
 		list->AddItem(item);
+		previousEvent = event;
 	}
 	list->Invalidate();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+BDate
+EventTabView::_StartOfWeek(BDate date) const
+{
+	int32 firstDay = ((App*) be_app)->GetPreferences()->fStartOfWeekOffset;
+	if (firstDay == 0) {
+		BWeekday localeFirstDay = B_WEEKDAY_MONDAY;
+		if (BDateFormat().GetStartOfWeek(&localeFirstDay) == B_OK)
+			firstDay = localeFirstDay;
+		else
+			firstDay = B_WEEKDAY_MONDAY;
+	}
+
+	int32 daysSinceWeekStart = date.DayOfWeek() - firstDay;
+	if (daysSinceWeekStart < 0)
+		daysSinceWeekStart += 7;
+	date.AddDays(-daysSinceWeekStart);
+	return date;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 int
