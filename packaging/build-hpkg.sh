@@ -3,7 +3,7 @@
 set -eu
 
 version="0.2.0"
-revision="11"
+revision="12"
 scriptDirectory="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 sourceDirectory="$(CDPATH= cd -- "$scriptDirectory/.." && pwd)"
 outputDirectory="$sourceDirectory/packages"
@@ -57,6 +57,8 @@ mkdir -p "$stageDirectory/documentation/packages/calendar"
 
 cp "$sourceDirectory/main/$objectDirectory/Calendar" \
 	"$stageDirectory/apps/Calendar"
+cp -R "$sourceDirectory/documentation/." \
+	"$stageDirectory/documentation/packages/calendar"
 cp "$sourceDirectory/LICENSE" \
 	"$stageDirectory/documentation/packages/calendar/LICENSE"
 cp "$sourceDirectory/README.md" \

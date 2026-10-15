@@ -102,6 +102,14 @@ ol {
 ul {
 	padding-left: 14px;
 }
+pre.terminal {
+	background-color: #202020;
+	border-radius: 4px;
+	color: #f0f0f0;
+	font-family: monospace;
+	overflow: auto;
+	padding: 10px 12px;
+}
 
 /* Rounded corner boxes */
 /* Common declarations */
@@ -126,16 +134,16 @@ ul {
 </head>
 <body>
 <div align = "center">
-<a href="https://github.com/HaikuArchives/Calendar">
+<a href="https://github.com/sikosis/Calendar">
 <img src="./images/calendar_icon_64.png" alt="Calendar icon" /></a>
 <p><span style="font-size: 1.5em; font-weight:bold">Calendar's User Documentation</span></p>
 <hr />
-<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#help">Help</a></p>
+<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#scripting">Scripting</a> — <a href="#help">Help</a></p>
 </div>
 <hr />
 <p><br /></p>
 
-<p>Calendar is a native Haiku application to manage your appointments. It was originally developed by Akshay Agarwal for the Google Summer of Code of 2017, see his <a href="https://www.haiku-os.org/blog/akshayagarwal007/">Blog posts</a> about it. It's further developed and maintained by developers at <a href="https://github.com/HaikuArchives/Calendar">HaikuArchives</a>.</p>
+<p>Calendar is a native Haiku application to manage your appointments. It was originally developed by Akshay Agarwal for the Google Summer of Code of 2017, see his <a href="https://www.haiku-os.org/blog/akshayagarwal007/">Blog posts</a> about it. This edition is developed and maintained at <a href="https://github.com/sikosis/Calendar">sikosis/Calendar</a>.</p>
 <p>You can create, edit and delete events, and cancel or hide them, categorize events and show them in a day, week or month view.</p>
 
 <div align="center">
@@ -153,7 +161,7 @@ Hidden and deleted events can remain visible by activating <span class="menu">Vi
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
 <a id="eventmanager" name="eventmanager">Event manager</a></h2>
 
-<p>Double-clicking an event also edits an event. As when creating a new event, it opens the <i>Event manager</i>.
+<p>Double-clicking an event also edits an event. As when creating a new event, it opens the <i>Event manager</i>.</p>
 
 <div align="center">
 <img src="images/event_manager.png" alt="The event manager" />
@@ -213,8 +221,33 @@ cannot be deleted but can be modified. Click on <span class="button">New...</spa
 
 <h2>
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="scripting" name="scripting">Scripting</a></h2>
+
+<p>Calendar supports Haiku scripting through <span class="path">hey</span>. Calendar must be running before sending it commands. To inspect the complete scripting vocabulary, enter:</p>
+
+<pre class="terminal">hey Calendar GETSUITES</pre>
+
+<p>The following commands read Calendar's current state:</p>
+
+<pre class="terminal">hey Calendar GET Version
+hey Calendar GET SelectedDate
+hey Calendar GET View</pre>
+
+<p>Dates use the unambiguous <span class="path">YYYY-MM-DD</span> format. The available views are <span class="path">day</span>, <span class="path">week</span> and <span class="path">month</span>.</p>
+
+<pre class="terminal">hey Calendar SET SelectedDate TO "2026-10-15"
+hey Calendar SET View TO week</pre>
+
+<p>Commands can also navigate to today or open Calendar windows:</p>
+
+<pre class="terminal">hey Calendar DO Today
+hey Calendar DO NewEvent
+hey Calendar DO ManageCategories</pre>
+
+<h2>
+<a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
 <a id="help" name="help">Help</a></h2>
-<p>Please report bugs or create feature requests at <a href="https://github.com/HaikuArchives/Calendar/issues">Calendar's issue tracker at GitHub.</a><br />
+<p>Please report bugs or create feature requests at <a href="https://github.com/sikosis/Calendar/issues">Calendar's issue tracker at GitHub.</a><br />
 You can help translate Calendar to even more languages at <a href="https://i18n.kacperkasper.pl/projects/28">Polyglot</a>.</p>
 
 </body>
