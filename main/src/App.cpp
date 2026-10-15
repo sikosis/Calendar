@@ -33,7 +33,7 @@
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
 const char* kSignature = "application/x-vnd.calendar";
-const char* const kVersion = "0.2.0";
+const char* const kVersion = "0.3.0";
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "App"

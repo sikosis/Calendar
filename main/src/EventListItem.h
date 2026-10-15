@@ -19,13 +19,14 @@ class EventListItem : public BListItem
 {
 public:
 					EventListItem(Event* event, int32 mode,
-						bool groupSeparator = false);
+						bool groupSeparator, rgb_color barColour);
 					~EventListItem();
 
 	virtual void	DrawItem(BView*, BRect, bool);
 	virtual void	Update(BView*, const BFont*);
 
 	Event*			GetEvent();
+	void			SetBarColour(rgb_color colour);
 
 private:
 	void			_CalcTimeText(int32 mode);
@@ -35,6 +36,7 @@ private:
 	Event*			fEvent;
 	BString			fTimeText;
 	bool			fGroupSeparator;
+	rgb_color		fBarColour;
 };
 
 #endif // EVENTLLISTITEM_H

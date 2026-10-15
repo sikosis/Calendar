@@ -7,6 +7,7 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
+#include <InterfaceDefs.h>
 #include <Path.h>
 #include <String.h>
 
@@ -27,6 +28,7 @@ public:
 	bool	fHeaderVisible;
 	bool	fFirstDeletion;
 	BString	fDefaultCategory;
+	rgb_color	fBarColour;
 	BRect	fMainWindowRect;
 	BRect	fEventWindowRect;
 };

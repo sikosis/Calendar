@@ -25,11 +25,13 @@
 #define B_TRANSLATION_CONTEXT "EventListItem"
 
 
-EventListItem::EventListItem(Event* event, int32 mode, bool groupSeparator)
+EventListItem::EventListItem(
+	Event* event, int32 mode, bool groupSeparator, rgb_color barColour)
 	:
 	BListItem(),
 	fEvent(event),
-	fGroupSeparator(groupSeparator)
+	fGroupSeparator(groupSeparator),
+	fBarColour(barColour)
 {
 	_CalcTimeText(mode);
 }
@@ -150,7 +152,7 @@ EventListItem::DrawItem(BView* view, BRect rect, bool complete)
 	view->StrokeLine(rect.LeftBottom(), rect.RightBottom());
 
 	if (fGroupSeparator) {
-		view->SetHighUIColor(B_KEYBOARD_NAVIGATION_COLOR);
+		view->SetHighColor(fBarColour);
 		BRect separator(rect.left, rect.top, rect.right, rect.top + 1);
 		view->FillRect(separator);
 	}
@@ -175,6 +177,15 @@ EventListItem::GetEvent()
 {
 	return fEvent;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+EventListItem::SetBarColour(rgb_color colour)
+{
+	fBarColour = colour;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

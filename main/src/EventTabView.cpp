@@ -35,6 +35,7 @@ EventTabView::EventTabView(const BDate& date)
 	_AddEventList("Month", B_TRANSLATE("Month"), kMonthTab);
 
 	fMode = ((App*) be_app)->GetPreferences()->fViewMode;
+	fBarColour = ((App*) be_app)->GetPreferences()->fBarColour;
 	fPopUpEnabled = true;
 	fEventList = NULL;
 	fDBManager = new QueryDBManager();
@@ -218,6 +219,27 @@ EventTabView::SetPopUpEnabled(bool state)
 {
 	fPopUpEnabled = state;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+EventTabView::SetBarColour(rgb_color colour)
+{
+	fBarColour = colour;
+	for (int32 tab = 0; tab < CountTabs(); tab++) {
+		EventListView* list = ListAt(tab);
+		if (list == NULL)
+			continue;
+
+		for (int32 index = 0; index < list->CountItems(); index++) {
+			EventListItem* item
+				= static_cast<EventListItem*>(list->ItemAt(index));
+			item->SetBarColour(colour);
+		}
+		list->Invalidate();
+	}
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Event*
@@ -356,7 +378,7 @@ EventTabView::_PopulateList()
 		}
 
 		EventListItem* item
-			= new EventListItem(event, fMode, groupSeparator);
+			= new EventListItem(event, fMode, groupSeparator, fBarColour);
 		list->AddItem(item);
 		previousEvent = event;
 	}

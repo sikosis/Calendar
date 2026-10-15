@@ -435,8 +435,10 @@ MainWindow::_SyncWithPreferences()
 			fSidePanelView->ShowWeekHeader(false);
 
 		fSidePanelView->SetStartOfWeek(preferences->fStartOfWeekOffset);
+		fEventsView->SetBarColour(preferences->fBarColour);
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

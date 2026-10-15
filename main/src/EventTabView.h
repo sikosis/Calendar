@@ -8,6 +8,7 @@
 #define EVENT_TAB_VIEW_H
 
 #include <DateTime.h>
+#include <InterfaceDefs.h>
 #include <string>
 #include <TabView.h>
 
@@ -58,6 +59,7 @@ public:
 	uint8			Mode();
 
 	void			SetPopUpEnabled(bool state);
+	void			SetBarColour(rgb_color colour);
 
 	Event*			SelectedEvent();
 	void			LoadEvents();
@@ -78,6 +80,7 @@ private:
 	BDate			fDate;
 	uint8			fMode;
 	bool			fPopUpEnabled;
+	rgb_color		fBarColour;
 	QueryDBManager*	fDBManager;
 	std::string		fFilterKeywords;
 

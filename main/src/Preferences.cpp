@@ -83,11 +83,21 @@ Preferences::Load(const char* filename)
 	fFirstDeletion = storage.GetBool("firstDeletion", true);
 	fDefaultCategory
 		= storage.GetString("defaultCategory", B_TRANSLATE("Default"));
+	fBarColour = ui_color(B_KEYBOARD_NAVIGATION_COLOR);
+	const void* colourData = NULL;
+	ssize_t colourSize = 0;
+	if (storage.FindData("barColour", B_RGB_COLOR_TYPE, &colourData,
+			&colourSize) == B_OK
+		&& colourSize == sizeof(rgb_color)) {
+		fBarColour = *(const rgb_color*) colourData;
+		fBarColour.alpha = 255;
+	}
 	fMainWindowRect = storage.GetRect("mainWindowRect", BRect());
 	fEventWindowRect = storage.GetRect("eventWindowRect", BRect());
 
 	delete file;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -152,6 +162,8 @@ Preferences::Save(const char* filename)
 	storage.AddBool("headerVisible", fHeaderVisible);
 	storage.AddBool("firstDeletion", fFirstDeletion);
 	storage.AddString("defaultCategory", fDefaultCategory);
+	storage.AddData(
+		"barColour", B_RGB_COLOR_TYPE, &fBarColour, sizeof(fBarColour));
 	storage.AddRect("mainWindowRect", fMainWindowRect);
 	storage.AddRect("eventWindowRect", fEventWindowRect);
 
@@ -159,6 +171,7 @@ Preferences::Save(const char* filename)
 
 	delete file;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 Preferences&
@@ -168,8 +181,10 @@ Preferences::operator=(const Preferences& p)
 	fStartOfWeekOffset = p.fStartOfWeekOffset;
 	fHeaderVisible = p.fHeaderVisible;
 	fDefaultCategory = p.fDefaultCategory;
+	fBarColour = p.fBarColour;
 	fMainWindowRect = p.fMainWindowRect;
 	fEventWindowRect = p.fEventWindowRect;
 
 	return *this;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//

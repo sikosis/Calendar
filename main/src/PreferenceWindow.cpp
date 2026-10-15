@@ -12,11 +12,13 @@
 #include <Button.h>
 #include <Catalog.h>
 #include <CheckBox.h>
+#include <ColorControl.h>
 #include <ColorMenuItem.h>
 #include <LayoutBuilder.h>
 #include <MenuField.h>
 #include <PopUpMenu.h>
 #include <SeparatorView.h>
+#include <StringView.h>
 #include <Window.h>
 
 #include "App.h"
@@ -106,11 +108,17 @@ PreferenceWindow::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case kBarColourChangeMessage:
+			fTempPreferences->fBarColour = fBarColourPicker->ValueAsColor();
+			_PreferencesModified();
+			break;
+
 		default:
 			BWindow::MessageReceived(message);
 			break;
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -152,6 +160,8 @@ PreferenceWindow::_InitInterface()
 		B_TRANSLATE("Show week numbers in calendar"),
 		new BMessage(kShowWeekChangeMessage));
 	fWeekNumberHeaderCB->SetValue(B_CONTROL_OFF);
+	fBarColourPicker = new BColorControl(B_ORIGIN, B_CELLS_32x8, 1,
+		"BarColourPicker", new BMessage(kBarColourChangeMessage));
 
 	fApplyButton = new BButton(
 		B_TRANSLATE("Apply"), new BMessage(kApplyPreferencesMessage));
@@ -168,6 +178,9 @@ PreferenceWindow::_InitInterface()
 		.AddMenuField(fDefaultCatMenuField, 0, 0)
 		.AddMenuField(fDayOfWeekMenuField, 0, 1)
 		.Add(fWeekNumberHeaderCB, 0, 2, 2)
+		.Add(new BStringView(
+			"BarColourLabel", B_TRANSLATE("Bar colour:")), 0, 3)
+		.Add(fBarColourPicker, 1, 3)
 		.End()
 		.Add(new BSeparatorView(B_HORIZONTAL))
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
@@ -179,6 +192,7 @@ PreferenceWindow::_InitInterface()
 		.End()
 		.End();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -191,7 +205,9 @@ PreferenceWindow::_SyncPreferences(Preferences* preferences)
 
 	BMenuItem* item = fDayOfWeekMenu->ItemAt(preferences->fStartOfWeekOffset);
 	item->SetMarked(true);
+	fBarColourPicker->SetValue(preferences->fBarColour);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

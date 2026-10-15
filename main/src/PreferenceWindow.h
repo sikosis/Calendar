@@ -9,6 +9,7 @@
 
 class BButton;
 class BCheckBox;
+class BColorControl;
 class BPopUpMenu;
 class BMenuField;
 class Preferences;
@@ -38,12 +39,14 @@ private:
 	static const int kApplyPreferencesMessage = 1002;
 	static const int kRevertPreferencesMessage = 1003;
 	static const int kDefaultCategoryChangeMessage = 1004;
+	static const int kBarColourChangeMessage = 1005;
 
 	BCheckBox*		fWeekNumberHeaderCB;
 	BPopUpMenu*		fDayOfWeekMenu;
 	BPopUpMenu*		fDefaultCatMenu;
 	BMenuField*		fDayOfWeekMenuField;
 	BMenuField*		fDefaultCatMenuField;
+	BColorControl*	fBarColourPicker;
 	BButton*		fApplyButton;
 	BButton*		fRevertButton;
 
