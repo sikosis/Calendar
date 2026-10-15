@@ -208,6 +208,7 @@ CategoryEditWindow::_OnOkPressed()
 			B_TRANSLATE("OK"), NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 
 		alert->Go();
+		fCategoryText->MakeFocus(true);
 		return;
 	}
 
@@ -221,6 +222,7 @@ CategoryEditWindow::_OnOkPressed()
 	}
 	_CloseWindow();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
