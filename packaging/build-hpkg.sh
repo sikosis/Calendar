@@ -2,7 +2,7 @@
 
 set -eu
 
-version="0.5.1"
+version="0.6.0"
 revision="1"
 scriptDirectory="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 sourceDirectory="$(CDPATH= cd -- "$scriptDirectory/.." && pwd)"

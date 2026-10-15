@@ -49,10 +49,12 @@ SRCS = \
 	 src/Preferences.cpp  \
 	 src/SidePanelView.cpp  \
 	 src/TaskEditWindow.cpp  \
+	 src/TaskStore.cpp  \
 	 src/TasksWindow.cpp  \
 	 src/utils/ClockTime.cpp  \
 	 src/utils/ColorConverter.cpp  \
-	 src/utils/CronTabModel.cpp  \
+	 src/utils/TaskModel.cpp  \
+	 src/utils/TaskSchedule.cpp  \
 	 src/utils/ScriptingUtils.cpp  \
 	 src/utils/ICal.cpp  \
 	 src/utils/ReminderTime.cpp  \

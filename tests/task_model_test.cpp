@@ -1,4 +1,4 @@
-#include "CronTabModel.h"
+#include "TaskModel.h"
 
 #include <assert.h>
 
@@ -6,7 +6,7 @@
 int
 main()
 {
-	CronTabModel model;
+	TaskModel model;
 	model.Load("# keep this comment\nPATH=/boot/system/bin\n"
 		"15 9 * * 1-5 /boot/home/config/non-packaged/bin/backup\n"
 		"@daily echo daily\n\n");
@@ -30,13 +30,13 @@ main()
 	assert(model.Serialize().find("@reboot echo started\n")
 		!= std::string::npos);
 
-	assert(CronTabModel::IsValidSchedule("0 12 * * *"));
-	assert(CronTabModel::IsValidSchedule("@weekly"));
-	assert(!CronTabModel::IsValidSchedule("0 12 * *"));
-	assert(!CronTabModel::IsValidSchedule("@daily extra"));
-	assert(CronTabModel::IsValidCommand("echo hello"));
-	assert(!CronTabModel::IsValidCommand(""));
-	assert(!CronTabModel::IsValidCommand("echo one\necho two"));
+	assert(TaskModel::IsValidSchedule("0 12 * * *"));
+	assert(TaskModel::IsValidSchedule("@weekly"));
+	assert(!TaskModel::IsValidSchedule("0 12 * *"));
+	assert(!TaskModel::IsValidSchedule("@daily extra"));
+	assert(TaskModel::IsValidCommand("echo hello"));
+	assert(!TaskModel::IsValidCommand(""));
+	assert(!TaskModel::IsValidCommand("echo one\necho two"));
 	return 0;
 }
 //---------------------------------------------------------------------------------------------------------------------------------//

@@ -12,7 +12,7 @@
 #include <StringView.h>
 #include <TextControl.h>
 
-#include "CronTabModel.h"
+#include "TaskModel.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -40,7 +40,7 @@ TaskEditWindow::TaskEditWindow(BMessenger target, int32 taskIndex,
 		.SetInsets(B_USE_WINDOW_INSETS)
 		.Add(fScheduleControl)
 		.Add(new BStringView("ScheduleHelp",
-			B_TRANSLATE("Use five cron fields, for example 0 9 * * 1-5, "
+			B_TRANSLATE("Use five schedule fields, for example 0 9 * * 1-5, "
 				"or a nickname such as @daily.")))
 		.Add(fCommandControl)
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
@@ -91,16 +91,16 @@ TaskEditWindow::_Save()
 {
 	const char* schedule = fScheduleControl->Text();
 	const char* command = fCommandControl->Text();
-	if (!CronTabModel::IsValidSchedule(schedule)) {
+	if (!TaskModel::IsValidSchedule(schedule)) {
 		BAlert* alert = new BAlert(B_TRANSLATE("Invalid schedule"),
-			B_TRANSLATE("Enter five cron schedule fields or one nickname such "
+			B_TRANSLATE("Enter five schedule fields or one nickname such "
 				"as @daily."),
 			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 		alert->Go();
 		fScheduleControl->MakeFocus(true);
 		return;
 	}
-	if (!CronTabModel::IsValidCommand(command)) {
+	if (!TaskModel::IsValidCommand(command)) {
 		BAlert* alert = new BAlert(B_TRANSLATE("Invalid command"),
 			B_TRANSLATE("Enter the command that this task should run."),
 			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);

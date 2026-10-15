@@ -9,7 +9,7 @@
 #include <Messenger.h>
 #include <Window.h>
 
-#include "CronTabModel.h"
+#include "TaskModel.h"
 
 
 class BButton;
@@ -29,11 +29,11 @@ public:
 	virtual bool	QuitRequested();
 
 private:
-	void			_LoadCrontab();
+	void			_LoadTasks();
 	void			_ReloadList();
 	void			_OpenEditor(int32 taskIndex);
 	void			_DeleteSelectedTask();
-	status_t		_InstallModel(const CronTabModel& model);
+	status_t		_SaveModel(const TaskModel& model);
 	void			_SetSelectionEnabled(bool enabled);
 
 	static const uint32 kNewPressed = 1000;
@@ -47,7 +47,7 @@ private:
 	BButton*		fEditButton;
 	BButton*		fDeleteButton;
 	TaskEditWindow* fEditWindow;
-	CronTabModel	fModel;
+	TaskModel		fModel;
 	bool			fLoaded;
 };
 

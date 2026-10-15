@@ -2,8 +2,8 @@
  * Copyright 2026 Calendar contributors
  * All rights reserved. Distributed under the terms of the MIT License.
  */
-#ifndef CRON_TAB_MODEL_H
-#define CRON_TAB_MODEL_H
+#ifndef TASK_MODEL_H
+#define TASK_MODEL_H
 
 
 #include <stddef.h>
@@ -12,20 +12,20 @@
 #include <vector>
 
 
-struct CronTask {
+struct CalendarTask {
 	size_t		lineIndex;
 	std::string	schedule;
 	std::string	command;
 };
 
 
-class CronTabModel
+class TaskModel
 {
 public:
 	void				Load(const std::string& contents);
 	std::string			Serialize() const;
 
-	const std::vector<CronTask>& Tasks() const;
+	const std::vector<CalendarTask>& Tasks() const;
 	bool				AddTask(const std::string& schedule,
 							const std::string& command);
 	bool				UpdateTask(size_t taskIndex,
@@ -39,12 +39,12 @@ public:
 private:
 	void				_RefreshTasks();
 	static bool			_ParseTaskLine(const std::string& line,
-							CronTask& task);
+							CalendarTask& task);
 	static bool			_IsEnvironmentLine(const std::string& line);
 	static std::string	_Trim(const std::string& value);
 
 	std::vector<std::string> fLines;
-	std::vector<CronTask> fTasks;
+	std::vector<CalendarTask> fTasks;
 };
 
 

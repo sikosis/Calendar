@@ -29,11 +29,15 @@ public:
 
 private:
 	void			_DrawCalendarPage();
+	void			_LaunchTask(const char* command);
 	void			_OpenCalendar();
 	void			_QuitCalendar();
+	void			_RunDueTasks(bool startup);
 	void			_ShowContextMenu(BPoint where);
 
 	BDate			fDate;
+	int64			fLastTaskMinute;
+	bool			fRanStartupTasks;
 };
 
 

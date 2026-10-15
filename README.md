@@ -7,7 +7,7 @@ Calendar is a native Haiku application to manage your appointments.
 You can create, edit and delete events, and cancel or hide them, categorize
 events and show them in a day, week or month view. Calendar also now includes a
 small Deskbar calendar replicant icon with the current date. As well as other immprovements,
-the Event menu provides a native helper for managing the current user's scheduled cron tasks.
+the Event menu provides Calendar's own scheduled task launcher.
 
 ![screenshot](documentation/images/main_window.png)
 
@@ -53,15 +53,16 @@ On Haiku, build and test an installable package from the repository root:
 packaging/build-hpkg.sh
 ```
 
-The package is written to `packages/calendar-0.5.1-1-<architecture>.hpkg`.
+The package is written to `packages/calendar-0.6.0-1-<architecture>.hpkg`.
 Install it with `pkgman`, substituting the generated filename:
 
 ```
-pkgman install ./packages/calendar-0.5.1-1-x86_64.hpkg
+pkgman install ./packages/calendar-0.6.0-1-x86_64.hpkg
 ```
 
-The package depends on a provider of the standard `crontab` command for the
-Tasks window.
+Calendar stores and launches scheduled tasks itself. Its persistent Deskbar
+replicant checks tasks once per minute, including while the main window is
+closed.
 
 For a secondary 32-bit build on 64-bit Haiku, run:
 

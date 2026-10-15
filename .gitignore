@@ -5,5 +5,7 @@ tests/clock_time_test
 tests/reminder_time_test
 tests/scripting_utils_test
 tests/cron_tab_model_test
+tests/task_model_test
+tests/task_schedule_test
 tests/time_interval_test
 Calendar.pld

@@ -5,10 +5,13 @@
 
 #include "CalendarDeskbarView.h"
 
+#include <time.h>
+
 #include <Application.h>
 #include <Archivable.h>
 #include <Catalog.h>
 #include <Deskbar.h>
+#include <Entry.h>
 #include <Font.h>
 #include <MenuItem.h>
 #include <Message.h>
@@ -19,6 +22,9 @@
 #include <Window.h>
 
 #include "App.h"
+#include "TaskModel.h"
+#include "TaskSchedule.h"
+#include "TaskStore.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -32,7 +38,9 @@ CalendarDeskbarView::CalendarDeskbarView(BRect frame)
 	:
 	BView(frame, kCalendarDeskbarItemName, B_FOLLOW_LEFT | B_FOLLOW_TOP,
 		B_WILL_DRAW | B_PULSE_NEEDED),
-	fDate(BDate::CurrentDate(B_LOCAL_TIME))
+	fDate(BDate::CurrentDate(B_LOCAL_TIME)),
+	fLastTaskMinute(-1),
+	fRanStartupTasks(false)
 {
 	SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	SetToolTip(B_TRANSLATE("Open Calendar"));
@@ -43,7 +51,9 @@ CalendarDeskbarView::CalendarDeskbarView(BRect frame)
 CalendarDeskbarView::CalendarDeskbarView(BMessage* archive)
 	:
 	BView(archive),
-	fDate(BDate::CurrentDate(B_LOCAL_TIME))
+	fDate(BDate::CurrentDate(B_LOCAL_TIME)),
+	fLastTaskMinute(-1),
+	fRanStartupTasks(false)
 {
 	SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 	SetToolTip(B_TRANSLATE("Open Calendar"));
@@ -89,6 +99,11 @@ CalendarDeskbarView::AttachedToWindow()
 			AdoptParentColors();
 	} else
 		SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
+
+	if (!fRanStartupTasks) {
+		_RunDueTasks(true);
+		fRanStartupTasks = true;
+	}
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -159,6 +174,20 @@ CalendarDeskbarView::MouseDown(BPoint where)
 
 
 void
+CalendarDeskbarView::_LaunchTask(const char* command)
+{
+	BEntry shell("/bin/sh", true);
+	entry_ref shellRef;
+	if (shell.GetRef(&shellRef) != B_OK)
+		return;
+
+	const char* arguments[] = {"/bin/sh", "-c", command, NULL};
+	be_roster->Launch(&shellRef, 3, arguments);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 CalendarDeskbarView::_OpenCalendar()
 {
 	team_id team = be_roster->TeamFor(kSignature);
@@ -195,6 +224,32 @@ CalendarDeskbarView::_QuitCalendar()
 
 
 void
+CalendarDeskbarView::_RunDueTasks(bool startup)
+{
+	TaskModel model;
+	if (LoadCalendarTasks(model) != B_OK)
+		return;
+
+	time_t now = time(NULL);
+	struct tm localTime;
+	if (localtime_r(&now, &localTime) == NULL)
+		return;
+
+	const std::vector<CalendarTask>& tasks = model.Tasks();
+	for (size_t index = 0; index < tasks.size(); index++) {
+		bool shouldRun = startup
+			? TaskSchedule::IsStartup(tasks[index].schedule)
+			: TaskSchedule::Matches(tasks[index].schedule,
+				localTime.tm_min, localTime.tm_hour, localTime.tm_mday,
+				localTime.tm_mon + 1, localTime.tm_wday);
+		if (shouldRun)
+			_LaunchTask(tasks[index].command.c_str());
+	}
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 CalendarDeskbarView::_ShowContextMenu(BPoint where)
 {
 	BPopUpMenu* menu = new BPopUpMenu("Calendar deskbar menu", false, false);
@@ -221,6 +276,13 @@ CalendarDeskbarView::_ShowContextMenu(BPoint where)
 void
 CalendarDeskbarView::Pulse()
 {
+	time_t now = time(NULL);
+	int64 currentMinute = (int64)now / 60;
+	if (currentMinute != fLastTaskMinute) {
+		fLastTaskMinute = currentMinute;
+		_RunDueTasks(false);
+	}
+
 	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
 	if (today == fDate)
 		return;

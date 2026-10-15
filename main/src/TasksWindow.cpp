@@ -5,14 +5,8 @@
 
 #include "TasksWindow.h"
 
-#include <ctype.h>
-#include <errno.h>
-#include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
-#include <algorithm>
 #include <string>
 
 #include <Alert.h>
@@ -25,63 +19,11 @@
 #include <StringItem.h>
 
 #include "TaskEditWindow.h"
+#include "TaskStore.h"
 
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TasksWindow"
-
-
-static char
-LowerCharacter(char character)
-{
-	return (char)tolower(static_cast<unsigned char>(character));
-}
-//---------------------------------------------------------------------------------------------------------------------------------//
-
-
-static status_t
-RunCommand(char* const arguments[], BString& output)
-{
-	int outputPipe[2];
-	if (pipe(outputPipe) != 0)
-		return errno;
-
-	pid_t child = fork();
-	if (child < 0) {
-		status_t error = errno;
-		close(outputPipe[0]);
-		close(outputPipe[1]);
-		return error;
-	}
-
-	if (child == 0) {
-		close(outputPipe[0]);
-		dup2(outputPipe[1], STDOUT_FILENO);
-		dup2(outputPipe[1], STDERR_FILENO);
-		close(outputPipe[1]);
-		setenv("NO_COLOR", "1", 1);
-		execvp(arguments[0], arguments);
-		const char* error = strerror(errno);
-		write(STDERR_FILENO, error, strlen(error));
-		write(STDERR_FILENO, "\n", 1);
-		_exit(127);
-	}
-
-	close(outputPipe[1]);
-	char buffer[1024];
-	ssize_t bytesRead;
-	while ((bytesRead = read(outputPipe[0], buffer, sizeof(buffer))) > 0)
-		output.Append(buffer, (int32)bytesRead);
-	close(outputPipe[0]);
-
-	int waitStatus = 0;
-	while (waitpid(child, &waitStatus, 0) < 0 && errno == EINTR) {
-	}
-	if (WIFEXITED(waitStatus) && WEXITSTATUS(waitStatus) == 0)
-		return B_OK;
-	return B_ERROR;
-}
-//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 TasksWindow::TasksWindow(BMessenger owner)
@@ -120,7 +62,7 @@ TasksWindow::TasksWindow(BMessenger owner)
 		.End();
 
 	CenterOnScreen();
-	_LoadCrontab();
+	_LoadTasks();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -146,11 +88,11 @@ TasksWindow::MessageReceived(BMessage* message)
 			int32 taskIndex = message->GetInt32("taskIndex", -1);
 			const char* schedule = message->GetString("schedule", "");
 			const char* command = message->GetString("command", "");
-			CronTabModel updated = fModel;
+			TaskModel updated = fModel;
 			bool changed = taskIndex < 0
 				? updated.AddTask(schedule, command)
 				: updated.UpdateTask(taskIndex, schedule, command);
-			status_t status = changed ? _InstallModel(updated) : B_BAD_VALUE;
+			status_t status = changed ? _SaveModel(updated) : B_BAD_VALUE;
 			BMessage reply;
 			reply.AddInt32("status", status);
 			message->SendReply(&reply);
@@ -182,33 +124,19 @@ TasksWindow::QuitRequested()
 
 
 void
-TasksWindow::_LoadCrontab()
+TasksWindow::_LoadTasks()
 {
-	char command[] = "/boot/system/bin/crontab";
-	char listOption[] = "-l";
-	char* arguments[] = {command, listOption, NULL};
-	BString output;
-	status_t status = RunCommand(arguments, output);
+	status_t status = LoadCalendarTasks(fModel);
 	if (status != B_OK) {
-		std::string lowerOutput(output.String());
-		std::transform(lowerOutput.begin(), lowerOutput.end(),
-			lowerOutput.begin(), LowerCharacter);
-		if (lowerOutput.find("no crontab") == std::string::npos) {
-			BString text(B_TRANSLATE("Calendar could not read your crontab."));
-			if (!output.IsEmpty()) {
-				text << "\n\n";
-				text << output;
-			}
-			BAlert* alert = new BAlert(B_TRANSLATE("Tasks"), text.String(),
-				B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL,
-				B_WARNING_ALERT);
-			alert->Go();
-			return;
-		}
-		output.Truncate(0);
+		BString text(B_TRANSLATE("Calendar could not read its task file."));
+		text << "\n\n" << strerror(status);
+		BAlert* alert = new BAlert(B_TRANSLATE("Tasks"), text.String(),
+			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL,
+			B_WARNING_ALERT);
+		alert->Go();
+		return;
 	}
 
-	fModel.Load(output.String());
 	fLoaded = true;
 	fNewButton->SetEnabled(true);
 	_ReloadList();
@@ -223,7 +151,7 @@ TasksWindow::_ReloadList()
 	while ((item = fTaskList->RemoveItem((int32)0)) != NULL)
 		delete item;
 
-	const std::vector<CronTask>& tasks = fModel.Tasks();
+	const std::vector<CalendarTask>& tasks = fModel.Tasks();
 	for (size_t index = 0; index < tasks.size(); index++) {
 		BString label(tasks[index].schedule.c_str());
 		label << "    " << tasks[index].command.c_str();
@@ -266,68 +194,27 @@ TasksWindow::_DeleteSelectedTask()
 		return;
 
 	BAlert* alert = new BAlert(B_TRANSLATE("Delete task"),
-		B_TRANSLATE("Delete the selected task from your crontab?"),
+		B_TRANSLATE("Delete the selected task from Calendar?"),
 		B_TRANSLATE("Cancel"), B_TRANSLATE("Delete"), NULL,
 		B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 	alert->SetShortcut(0, B_ESCAPE);
 	if (alert->Go() != 1)
 		return;
 
-	CronTabModel updated = fModel;
+	TaskModel updated = fModel;
 	if (updated.RemoveTask(taskIndex))
-		_InstallModel(updated);
+		_SaveModel(updated);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 
 status_t
-TasksWindow::_InstallModel(const CronTabModel& model)
+TasksWindow::_SaveModel(const TaskModel& model)
 {
-	char temporaryPath[] = "/tmp/Calendar-crontab-XXXXXX";
-	int file = mkstemp(temporaryPath);
-	if (file < 0) {
-		BString text(B_TRANSLATE("Calendar could not create a temporary "
-			"crontab file."));
-		text << "\n\n" << strerror(errno);
-		BAlert* alert = new BAlert(B_TRANSLATE("Tasks"), text.String(),
-			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
-		alert->Go();
-		return B_ERROR;
-	}
-
-	std::string contents = model.Serialize();
-	size_t written = 0;
-	while (written < contents.length()) {
-		ssize_t result
-			= write(file, contents.data() + written, contents.length() - written);
-		if (result <= 0) {
-			int error = result < 0 ? errno : EIO;
-			close(file);
-			unlink(temporaryPath);
-			BString text(B_TRANSLATE("Calendar could not write the temporary "
-				"crontab file."));
-			text << "\n\n" << strerror(error);
-			BAlert* alert = new BAlert(B_TRANSLATE("Tasks"), text.String(),
-				B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL,
-				B_WARNING_ALERT);
-			alert->Go();
-			return B_ERROR;
-		}
-		written += result;
-	}
-	close(file);
-
-	char command[] = "/boot/system/bin/crontab";
-	char* arguments[] = {command, temporaryPath, NULL};
-	BString output;
-	status_t status = RunCommand(arguments, output);
-	unlink(temporaryPath);
+	status_t status = SaveCalendarTasks(model);
 	if (status != B_OK) {
-		BString text(B_TRANSLATE("Calendar could not install your crontab."));
-		if (!output.IsEmpty()) {
-			text << "\n\n";
-			text << output;
-		}
+		BString text(B_TRANSLATE("Calendar could not save its task file."));
+		text << "\n\n" << strerror(status);
 		BAlert* alert = new BAlert(B_TRANSLATE("Tasks"), text.String(),
 			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
 		alert->Go();

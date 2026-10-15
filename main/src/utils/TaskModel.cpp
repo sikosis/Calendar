@@ -3,13 +3,15 @@
  * All rights reserved. Distributed under the terms of the MIT License.
  */
 
-#include "CronTabModel.h"
+#include "TaskModel.h"
 
 #include <ctype.h>
 
+#include "TaskSchedule.h"
+
 
 void
-CronTabModel::Load(const std::string& contents)
+TaskModel::Load(const std::string& contents)
 {
 	fLines.clear();
 	size_t start = 0;
@@ -30,7 +32,7 @@ CronTabModel::Load(const std::string& contents)
 
 
 std::string
-CronTabModel::Serialize() const
+TaskModel::Serialize() const
 {
 	std::string contents;
 	for (size_t index = 0; index < fLines.size(); index++) {
@@ -42,8 +44,8 @@ CronTabModel::Serialize() const
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 
-const std::vector<CronTask>&
-CronTabModel::Tasks() const
+const std::vector<CalendarTask>&
+TaskModel::Tasks() const
 {
 	return fTasks;
 }
@@ -51,7 +53,7 @@ CronTabModel::Tasks() const
 
 
 bool
-CronTabModel::AddTask(
+TaskModel::AddTask(
 	const std::string& schedule, const std::string& command)
 {
 	if (!IsValidSchedule(schedule) || !IsValidCommand(command))
@@ -65,7 +67,7 @@ CronTabModel::AddTask(
 
 
 bool
-CronTabModel::UpdateTask(size_t taskIndex, const std::string& schedule,
+TaskModel::UpdateTask(size_t taskIndex, const std::string& schedule,
 	const std::string& command)
 {
 	if (taskIndex >= fTasks.size() || !IsValidSchedule(schedule)
@@ -82,7 +84,7 @@ CronTabModel::UpdateTask(size_t taskIndex, const std::string& schedule,
 
 
 bool
-CronTabModel::RemoveTask(size_t taskIndex)
+TaskModel::RemoveTask(size_t taskIndex)
 {
 	if (taskIndex >= fTasks.size())
 		return false;
@@ -95,7 +97,7 @@ CronTabModel::RemoveTask(size_t taskIndex)
 
 
 bool
-CronTabModel::IsValidSchedule(const std::string& schedule)
+TaskModel::IsValidSchedule(const std::string& schedule)
 {
 	std::string value = _Trim(schedule);
 	if (value.empty() || value.find('\n') != std::string::npos
@@ -103,33 +105,13 @@ CronTabModel::IsValidSchedule(const std::string& schedule)
 		return false;
 	}
 
-	if (value[0] == '@')
-		return value.find_first_of(" \t") == std::string::npos;
-
-	size_t position = 0;
-	int fields = 0;
-	while (position < value.length()) {
-		while (position < value.length()
-			&& isspace(static_cast<unsigned char>(value[position]))) {
-			position++;
-		}
-		if (position >= value.length())
-			break;
-
-		fields++;
-		while (position < value.length()
-			&& !isspace(static_cast<unsigned char>(value[position]))) {
-			position++;
-		}
-	}
-
-	return fields == 5;
+	return TaskSchedule::IsValid(value);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
-CronTabModel::IsValidCommand(const std::string& command)
+TaskModel::IsValidCommand(const std::string& command)
 {
 	std::string value = _Trim(command);
 	return !value.empty() && value.find('\n') == std::string::npos
@@ -139,11 +121,11 @@ CronTabModel::IsValidCommand(const std::string& command)
 
 
 void
-CronTabModel::_RefreshTasks()
+TaskModel::_RefreshTasks()
 {
 	fTasks.clear();
 	for (size_t index = 0; index < fLines.size(); index++) {
-		CronTask task;
+		CalendarTask task;
 		if (_ParseTaskLine(fLines[index], task)) {
 			task.lineIndex = index;
 			fTasks.push_back(task);
@@ -154,7 +136,7 @@ CronTabModel::_RefreshTasks()
 
 
 bool
-CronTabModel::_ParseTaskLine(const std::string& line, CronTask& task)
+TaskModel::_ParseTaskLine(const std::string& line, CalendarTask& task)
 {
 	std::string value = _Trim(line);
 	if (value.empty() || value[0] == '#' || _IsEnvironmentLine(value))
@@ -197,7 +179,7 @@ CronTabModel::_ParseTaskLine(const std::string& line, CronTask& task)
 
 
 bool
-CronTabModel::_IsEnvironmentLine(const std::string& line)
+TaskModel::_IsEnvironmentLine(const std::string& line)
 {
 	if (line.empty()
 		|| !(isalpha(static_cast<unsigned char>(line[0])) || line[0] == '_')) {
@@ -220,7 +202,7 @@ CronTabModel::_IsEnvironmentLine(const std::string& line)
 
 
 std::string
-CronTabModel::_Trim(const std::string& value)
+TaskModel::_Trim(const std::string& value)
 {
 	size_t start = 0;
 	while (start < value.length()

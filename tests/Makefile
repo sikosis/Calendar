@@ -4,12 +4,13 @@ CXXFLAGS ?= -std=c++98 -Wall -Wextra -Werror
 .PHONY: test clean
 
 test: reminder_time_test clock_time_test time_interval_test scripting_utils_test \
-	cron_tab_model_test
+	task_model_test task_schedule_test
 	./reminder_time_test
 	./clock_time_test
 	./time_interval_test
 	./scripting_utils_test
-	./cron_tab_model_test
+	./task_model_test
+	./task_schedule_test
 
 reminder_time_test: reminder_time_test.cpp ../main/src/utils/ReminderTime.cpp
 	$(CXX) $(CXXFLAGS) -I../main/src/utils $^ -o $@
@@ -23,9 +24,13 @@ time_interval_test: time_interval_test.cpp ../main/src/utils/TimeInterval.cpp
 scripting_utils_test: scripting_utils_test.cpp ../main/src/utils/ScriptingUtils.cpp
 	$(CXX) $(CXXFLAGS) -I../main/src/utils $^ -o $@
 
-cron_tab_model_test: cron_tab_model_test.cpp ../main/src/utils/CronTabModel.cpp
+task_model_test: task_model_test.cpp ../main/src/utils/TaskModel.cpp \
+		../main/src/utils/TaskSchedule.cpp
+	$(CXX) $(CXXFLAGS) -I../main/src/utils $^ -o $@
+
+task_schedule_test: task_schedule_test.cpp ../main/src/utils/TaskSchedule.cpp
 	$(CXX) $(CXXFLAGS) -I../main/src/utils $^ -o $@
 
 clean:
 	rm -f reminder_time_test clock_time_test time_interval_test \
-		scripting_utils_test cron_tab_model_test
+		scripting_utils_test task_model_test task_schedule_test

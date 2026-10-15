@@ -201,9 +201,11 @@ cannot be deleted but can be modified. Click on <span class="button">New...</spa
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
 <a id="tasks" name="tasks">Tasks</a></h2>
 
-<p><span class="menu">Event | Tasks...</span> opens a helper for the current user's crontab. It lists active cron tasks and provides <span class="button">New...</span>, <span class="button">Edit...</span> and <span class="button">Delete</span> controls. Comments, blank lines and environment settings in the crontab are preserved when tasks are changed.</p>
+<p><span class="menu">Event | Tasks...</span> opens Calendar's own scheduled task manager. It lists tasks saved in Calendar's settings and provides <span class="button">New...</span>, <span class="button">Edit...</span> and <span class="button">Delete</span> controls.</p>
 
-<p>A task consists of a schedule and a command. The schedule accepts the five standard cron fields, such as <span class="path">0 9 * * 1-5</span>, or a nickname such as <span class="path">@daily</span>. Calendar asks the system's <span class="path">crontab</span> command to validate and install every change.</p>
+<p>A task consists of a schedule and a command. The schedule accepts five minute, hour, day-of-month, month and day-of-week fields, such as <span class="path">0 9 * * 1-5</span>. Lists, ranges and steps are supported, as are <span class="path">@reboot</span>, <span class="path">@hourly</span>, <span class="path">@daily</span>, <span class="path">@weekly</span>, <span class="path">@monthly</span> and <span class="path">@yearly</span>.</p>
+
+<p>The persistent Calendar Deskbar replicant checks these tasks once per minute and launches matching commands through <span class="path">/bin/sh</span> as the current user. It continues scheduling while the main Calendar window is closed. Choosing <span class="menu">Quit Calendar</span> from the replicant stops the scheduler and removes the replicant.</p>
 
 <h2>
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
