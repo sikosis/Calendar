@@ -42,6 +42,7 @@ private:
 	void	_RefreshWindows();
 	void	_CloseWindow();
 	bool	_SaveChanges();
+	rgb_color	_NewCategoryColour();
 
 	static const uint32 kOkPressed = 1000;
 	static const uint32 kRevertPressed = 1001;

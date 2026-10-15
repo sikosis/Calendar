@@ -12,6 +12,7 @@
 #include <ColorControl.h>
 #include <LayoutBuilder.h>
 #include <ListView.h>
+#include <OS.h>
 #include <SeparatorView.h>
 #include <TextControl.h>
 #include <View.h>
@@ -96,14 +97,70 @@ CategoryEditWindow::SetCategory(Category* category)
 	}
 
 	else {
-		fPicker->SetValue((rgb_color){255, 255, 0});
-		fColorPreview->SetColor((rgb_color){255, 255, 0});
+		rgb_color colour = _NewCategoryColour();
+		fPicker->SetValue(colour);
+		fColorPreview->SetColor(colour);
 		fColorPreview->Invalidate();
 	}
 
 	fRevertButton->SetEnabled(false);
 	fCategoryText->SetModificationMessage(new BMessage(kCategoryTextChanged));
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+rgb_color
+CategoryEditWindow::_NewCategoryColour()
+{
+	static const rgb_color colours[] = {
+		{244, 67, 54, 255},
+		{233, 30, 99, 255},
+		{156, 39, 176, 255},
+		{103, 58, 183, 255},
+		{63, 81, 181, 255},
+		{33, 150, 243, 255},
+		{0, 188, 212, 255},
+		{0, 150, 136, 255},
+		{76, 175, 80, 255},
+		{139, 195, 74, 255},
+		{205, 220, 57, 255},
+		{255, 193, 7, 255},
+		{255, 152, 0, 255},
+		{255, 87, 34, 255}
+	};
+
+	CategoryList* categories
+		= ((App*) be_app)->categoryWindow()->GetDBManager()->GetAllCategories();
+	uint32 firstColour = (uint32)(system_time() % B_COUNT_OF(colours));
+
+	for (uint32 offset = 0; offset < B_COUNT_OF(colours); offset++) {
+		rgb_color colour = colours[(firstColour + offset) % B_COUNT_OF(colours)];
+		bool colourInUse = false;
+
+		for (int32 index = 0; index < categories->CountItems(); index++) {
+			rgb_color existingColour = categories->ItemAt(index)->GetColor();
+			if (colour.red == existingColour.red
+				&& colour.green == existingColour.green
+				&& colour.blue == existingColour.blue) {
+				colourInUse = true;
+				break;
+			}
+		}
+
+		if (!colourInUse) {
+			delete categories;
+			return colour;
+		}
+	}
+
+	delete categories;
+	uint64 value = (uint64)system_time();
+	return (rgb_color){
+		(uint8)(64 + value % 192),
+		(uint8)(64 + (value >> 8) % 192),
+		(uint8)(64 + (value >> 16) % 192), 255};
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
