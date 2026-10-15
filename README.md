@@ -24,7 +24,8 @@ Credit to the original authors, whose work this builds directly upon.
 
 ## Building on 32-bit Haiku
 
-> **NB:** When building on 32-bit Haiku, you must change the build environment to use `gcc11` with `setarch x86` **before** invoking `make`.
+> [!IMPORTANT]
+> When building on 32-bit Haiku, you must change the build environment to use `gcc11` with `setarch x86` **before** invoking `make`.
 
 ---
 
@@ -83,7 +84,7 @@ setarch x86 packaging/build-hpkg.sh
 
 ---
 
-## 🎛️ Scripting
+## Scripting
 
 Calendar supports Haiku scripting through `hey`. Use `hey Calendar GETSUITES` to inspect the complete vocabulary.
 
