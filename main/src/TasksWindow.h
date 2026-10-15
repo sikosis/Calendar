@@ -14,6 +14,7 @@
 
 class BButton;
 class BListView;
+class BStringView;
 class TaskEditWindow;
 
 
@@ -33,6 +34,7 @@ private:
 	void			_ReloadList();
 	void			_OpenEditor(int32 taskIndex);
 	void			_DeleteSelectedTask();
+	void			_RunSelectedTask();
 	status_t		_SaveModel(const TaskModel& model);
 	void			_SetSelectionEnabled(bool enabled);
 
@@ -40,12 +42,15 @@ private:
 	static const uint32 kEditPressed = 1001;
 	static const uint32 kDeletePressed = 1002;
 	static const uint32 kTaskSelected = 1003;
+	static const uint32 kRunPressed = 1004;
 
 	BMessenger		fOwner;
 	BListView*		fTaskList;
 	BButton*		fNewButton;
 	BButton*		fEditButton;
 	BButton*		fDeleteButton;
+	BButton*		fRunButton;
+	BStringView*	fStatusView;
 	TaskEditWindow* fEditWindow;
 	TaskModel		fModel;
 	bool			fLoaded;

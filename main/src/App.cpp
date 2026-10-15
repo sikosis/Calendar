@@ -20,6 +20,7 @@
 
 #include <locale.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "CalendarDeskbarView.h"
 #include "CategoryWindow.h"
@@ -33,7 +34,7 @@
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
 const char* kSignature = "application/x-vnd.calendar";
-const char* const kVersion = "0.6.0";
+const char* const kVersion = "0.6.1";
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "App"
@@ -65,6 +66,48 @@ SendScriptingReply(BMessage* request, status_t error, const char* result = NULL)
 		reply.AddString("result", result);
 	reply.AddInt32("error", error);
 	request->SendReply(&reply);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+static bool
+DeskbarVersionMatches(const BPath& settingsPath)
+{
+	BPath path(settingsPath);
+	if (path.Append("deskbar-version") != B_OK)
+		return false;
+
+	BFile file(path.Path(), B_READ_ONLY);
+	if (file.InitCheck() != B_OK)
+		return false;
+
+	char version[32];
+	ssize_t bytesRead = file.Read(version, sizeof(version) - 1);
+	if (bytesRead < 0)
+		return false;
+	version[bytesRead] = '\0';
+	return strcmp(version, kVersion) == 0;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+static status_t
+SaveDeskbarVersion(const BPath& settingsPath)
+{
+	BPath path(settingsPath);
+	status_t status = path.Append("deskbar-version");
+	if (status != B_OK)
+		return status;
+
+	BFile file(path.Path(), B_WRITE_ONLY | B_CREATE_FILE | B_ERASE_FILE);
+	status = file.InitCheck();
+	if (status != B_OK)
+		return status;
+
+	ssize_t bytesWritten = file.Write(kVersion, strlen(kVersion));
+	if (bytesWritten < 0)
+		return (status_t)bytesWritten;
+	return (size_t)bytesWritten == strlen(kVersion) ? B_OK : B_IO_ERROR;
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -139,12 +182,21 @@ void
 App::_InstallDeskbarReplicant()
 {
 	BDeskbar deskbar;
-	if (!deskbar.IsRunning() || deskbar.HasItem(kCalendarDeskbarItemName))
+	if (!deskbar.IsRunning())
+		return;
+
+	bool hasItem = deskbar.HasItem(kCalendarDeskbarItemName);
+	if (hasItem && !DeskbarVersionMatches(fPreferences->fSettingsPath)) {
+		if (deskbar.RemoveItem(kCalendarDeskbarItemName) != B_OK)
+			return;
+		hasItem = false;
+	}
+	if (hasItem)
 		return;
 
 	app_info info;
-	if (GetAppInfo(&info) == B_OK)
-		deskbar.AddItem(&info.ref);
+	if (GetAppInfo(&info) == B_OK && deskbar.AddItem(&info.ref) == B_OK)
+		SaveDeskbarVersion(fPreferences->fSettingsPath);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 

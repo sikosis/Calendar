@@ -32,6 +32,7 @@ private:
 
 	static const uint32 kSavePressed = 1000;
 	static const uint32 kCancelPressed = 1001;
+	static const uint32 kPresetSelected = 1002;
 
 	BMessenger		fTarget;
 	int32			fTaskIndex;

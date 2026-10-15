@@ -5,10 +5,15 @@
 
 #include "TaskEditWindow.h"
 
+#include <string.h>
+
 #include <Alert.h>
 #include <Button.h>
 #include <Catalog.h>
 #include <LayoutBuilder.h>
+#include <MenuField.h>
+#include <MenuItem.h>
+#include <PopUpMenu.h>
 #include <StringView.h>
 #include <TextControl.h>
 
@@ -35,9 +40,37 @@ TaskEditWindow::TaskEditWindow(BMessenger target, int32 taskIndex,
 		"Command", B_TRANSLATE("Command:"), command, NULL);
 	fSaveButton = new BButton(
 		"Save", B_TRANSLATE("Save"), new BMessage(kSavePressed));
+	BPopUpMenu* presetMenu = new BPopUpMenu("SchedulePreset");
+	const char* presetLabels[] = {
+		B_TRANSLATE("Every minute"), B_TRANSLATE("Hourly"),
+		B_TRANSLATE("Daily"), B_TRANSLATE("Weekly"),
+		B_TRANSLATE("Monthly"), B_TRANSLATE("At startup")
+	};
+	const char* presetSchedules[] = {
+		"* * * * *", "@hourly", "@daily", "@weekly", "@monthly", "@reboot"
+	};
+	bool markedPreset = false;
+	for (size_t index = 0; index < 6; index++) {
+		BMessage* preset = new BMessage(kPresetSelected);
+		preset->AddString("schedule", presetSchedules[index]);
+		BMenuItem* item = new BMenuItem(presetLabels[index], preset);
+		presetMenu->AddItem(item);
+		if (strcmp(schedule, presetSchedules[index]) == 0) {
+			item->SetMarked(true);
+			markedPreset = true;
+		}
+	}
+	BMenuItem* customItem = new BMenuItem(
+		B_TRANSLATE("Custom"), new BMessage(kPresetSelected));
+	presetMenu->AddItem(customItem);
+	if (!markedPreset)
+		customItem->SetMarked(true);
+	BMenuField* presetField = new BMenuField(
+		"SchedulePresetField", B_TRANSLATE("Common schedule:"), presetMenu);
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL, B_USE_DEFAULT_SPACING)
 		.SetInsets(B_USE_WINDOW_INSETS)
+		.Add(presetField)
 		.Add(fScheduleControl)
 		.Add(new BStringView("ScheduleHelp",
 			B_TRANSLATE("Use five schedule fields, for example 0 9 * * 1-5, "
@@ -69,6 +102,14 @@ TaskEditWindow::MessageReceived(BMessage* message)
 		case kCancelPressed:
 			PostMessage(B_QUIT_REQUESTED);
 			break;
+		case kPresetSelected:
+		{
+			const char* schedule = message->GetString("schedule", NULL);
+			if (schedule != NULL)
+				fScheduleControl->SetText(schedule);
+			fScheduleControl->MakeFocus(true);
+			break;
+		}
 		default:
 			BWindow::MessageReceived(message);
 			break;

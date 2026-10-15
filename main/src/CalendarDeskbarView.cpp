@@ -11,7 +11,6 @@
 #include <Archivable.h>
 #include <Catalog.h>
 #include <Deskbar.h>
-#include <Entry.h>
 #include <Font.h>
 #include <MenuItem.h>
 #include <Message.h>
@@ -22,6 +21,7 @@
 #include <Window.h>
 
 #include "App.h"
+#include "TaskLauncher.h"
 #include "TaskModel.h"
 #include "TaskSchedule.h"
 #include "TaskStore.h"
@@ -176,13 +176,7 @@ CalendarDeskbarView::MouseDown(BPoint where)
 void
 CalendarDeskbarView::_LaunchTask(const char* command)
 {
-	BEntry shell("/bin/sh", true);
-	entry_ref shellRef;
-	if (shell.GetRef(&shellRef) != B_OK)
-		return;
-
-	const char* arguments[] = {"/bin/sh", "-c", command, NULL};
-	be_roster->Launch(&shellRef, 3, arguments);
+	LaunchCalendarTask(command);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 

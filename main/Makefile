@@ -49,6 +49,7 @@ SRCS = \
 	 src/Preferences.cpp  \
 	 src/SidePanelView.cpp  \
 	 src/TaskEditWindow.cpp  \
+	 src/TaskLauncher.cpp  \
 	 src/TaskStore.cpp  \
 	 src/TasksWindow.cpp  \
 	 src/utils/ClockTime.cpp  \
