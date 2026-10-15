@@ -14,6 +14,7 @@
 #include <FindDirectory.h>
 #include <LocaleRoster.h>
 #include <NodeInfo.h>
+#include <Roster.h>
 #include <String.h>
 
 #include <locale.h>
