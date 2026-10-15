@@ -163,7 +163,8 @@ CalendarDeskbarView::_OpenCalendar()
 {
 	team_id team = be_roster->TeamFor(kSignature);
 	if (team < B_OK) {
-		status_t status = be_roster->Launch(kSignature, NULL, &team);
+		status_t status = be_roster->Launch(kSignature,
+			static_cast<BMessage*>(NULL), &team);
 		if (status != B_OK && status != B_ALREADY_RUNNING)
 			return;
 		if (status == B_ALREADY_RUNNING)
