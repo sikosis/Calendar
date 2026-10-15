@@ -40,11 +40,11 @@ On Haiku, build and test an installable package from the repository root:
 packaging/build-hpkg.sh
 ```
 
-The package is written to `packages/calendar-0.2.0-8-<architecture>.hpkg`.
+The package is written to `packages/calendar-0.2.0-9-<architecture>.hpkg`.
 Install it with `pkgman`, substituting the generated filename:
 
 ```
-pkgman install ./packages/calendar-0.2.0-8-x86_64.hpkg
+pkgman install ./packages/calendar-0.2.0-9-x86_64.hpkg
 ```
 
 For a secondary 32-bit build on 64-bit Haiku, run:

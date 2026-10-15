@@ -13,6 +13,7 @@
 #include <FindDirectory.h>
 #include <LocaleRoster.h>
 #include <NodeInfo.h>
+#include <String.h>
 
 #include <locale.h>
 
@@ -24,6 +25,7 @@
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
 const char* kSignature = "application/x-vnd.calendar";
+const char* const kVersion = "0.2.0";
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "App"
@@ -65,23 +67,39 @@ App::~App()
 void
 App::AboutRequested()
 {
-	const char* authors[] = {
+	const char* currentContributors[] = {
+		"Sikosis",
+		NULL
+	};
+	const char* pastContributors[] = {
 		"Akshay Agarwal",
 		"Humdinger",
 		"Jaidyn Levesque",
+		"Harshit Sharma",
+		"Jérôme Duval",
 		"malbx",
+		"Scott McCreary",
 		"Fredrik Modéen",
 		"Bach Nguyen",
+		"janus2",
+		"Augustin Cavalier",
+		"Barmendu Chakraborty",
 		NULL
 	};
 
 	BAboutWindow* aboutW = new BAboutWindow(kAppName, kSignature);
+	BString version(B_TRANSLATE("Version"));
+	version << " " << kVersion;
+	aboutW->SetVersion(version.String());
 	aboutW->AddDescription(
 		B_TRANSLATE("A calendar application to manage your appointments."));
 	aboutW->AddCopyright(2017, "Akshay Agarwal");
-	aboutW->AddAuthors(authors);
+	aboutW->AddText(
+		B_TRANSLATE("Current Contributors"), currentContributors);
+	aboutW->AddText(B_TRANSLATE("Past Contributors"), pastContributors);
 	aboutW->Show();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
