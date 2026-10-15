@@ -291,6 +291,9 @@ MainWindow::_InitInterface()
 			new BMessage(kHideEventMessage)));
 	for (int i = 1; i < fEventMenu->CountItems(); i++)
 		fEventMenu->ItemAt(i)->SetEnabled(false);
+	fEventMenu->AddSeparatorItem();
+	fEventMenu->AddItem(new BMenuItem(
+		B_TRANSLATE("Go to today"), new BMessage(kSetCalendarToCurrentDate)));
 
 	fCategoryMenu = new BMenu(B_TRANSLATE("Category"));
 	fCategoryMenu->AddItem(new BMenuItem(B_TRANSLATE("Manage" B_UTF8_ELLIPSIS),
@@ -347,6 +350,7 @@ MainWindow::_InitInterface()
 		.End()
 		.End();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -444,9 +448,10 @@ MainWindow::_ToggleEventMenu(BMessage* msg)
 	bool cancelled = msg->GetBool("_cancelled", false);
 	bool hidden = msg->GetBool("_hidden", false);
 
-	for (int i = 1; i < fEventMenu->CountItems(); i++)
+	for (int i = 1; i <= 4; i++)
 		fEventMenu->ItemAt(i)->SetEnabled(index > -1);
 	fEventMenu->ItemAt(2)->SetMarked(deleted);
 	fEventMenu->ItemAt(3)->SetMarked(cancelled);
 	fEventMenu->ItemAt(4)->SetMarked(hidden);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
