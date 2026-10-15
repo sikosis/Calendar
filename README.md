@@ -2,13 +2,12 @@
 
 * * *
 
-Calendar is a native Haiku application to manage your appointments.    
+Calendar is a native Haiku application to manage your appointments.
+
 You can create, edit and delete events, and cancel or hide them, categorize
-events and show them in a day, week or month view. Calendar also installs a
-small Deskbar calendar when first launched. Click it to open Calendar, or
-right-click it to open or quit it. Quitting Calendar also removes the Deskbar
-calendar. The Event menu also provides a
-native helper for managing the current user's scheduled cron tasks.
+events and show them in a day, week or month view. Calendar also now includes a
+small Deskbar calendar replicant icon with the current date. As well as other immprovements,
+the Event menu provides a native helper for managing the current user's scheduled cron tasks.
 
 ![screenshot](documentation/images/main_window.png)
 
