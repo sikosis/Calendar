@@ -30,6 +30,7 @@ public:
 	void			ArgvReceived(int32 argc, char** argv);
 	void			MessageReceived(BMessage* message);
 	void			RefsReceived(BMessage* message);
+	void			ReadyToRun();
 
 	void			AboutRequested();
 	bool			QuitRequested();
@@ -39,6 +40,8 @@ public:
 
 
 private:
+	void			_InstallDeskbarReplicant();
+
 	MainWindow*		fMainWindow;
 	PreferenceWindow* fPreferenceWindow;
 	CategoryWindow*	fCategoryWindow;

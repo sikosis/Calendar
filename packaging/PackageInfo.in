@@ -2,7 +2,7 @@ name			calendar
 version			@VERSION@-@REVISION@
 architecture		@ARCHITECTURE@
 summary			"A native calendar application for Haiku"
-description		"Calendar manages appointments using native Haiku files, attributes and queries. It provides day, week and month views, categories, reminders and recurring events."
+description		"Calendar manages appointments using native Haiku files, attributes and queries. It provides day, week and month views, categories, reminders, recurring events and a persistent Deskbar calendar."
 packager		"sikosis"
 vendor			"Calendar contributors"
 licenses {

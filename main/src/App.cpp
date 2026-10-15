@@ -7,6 +7,7 @@
 
 #include <AboutWindow.h>
 #include <Catalog.h>
+#include <Deskbar.h>
 #include <Directory.h>
 #include <Entry.h>
 #include <File.h>
@@ -17,6 +18,7 @@
 
 #include <locale.h>
 
+#include "CalendarDeskbarView.h"
 #include "CategoryWindow.h"
 #include "EventWindow.h"
 #include "MainWindow.h"
@@ -62,6 +64,28 @@ App::~App()
 	fPreferences->Save(fPreferencesFile.Path());
 	delete fPreferences;
 }
+
+
+void
+App::ReadyToRun()
+{
+	_InstallDeskbarReplicant();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+App::_InstallDeskbarReplicant()
+{
+	BDeskbar deskbar;
+	if (!deskbar.IsRunning() || deskbar.HasItem(kCalendarDeskbarItemName))
+		return;
+
+	app_info info;
+	if (GetAppInfo(&info) == B_OK)
+		deskbar.AddItem(&info.ref);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

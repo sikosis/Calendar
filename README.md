@@ -3,7 +3,10 @@
 * * *
 
 Calendar is a native Haiku application to manage your appointments.    
-You can create, edit and delete events, and cancel or hide them, categorize events and show them in a day, week or month view.
+You can create, edit and delete events, and cancel or hide them, categorize
+events and show them in a day, week or month view. Calendar also installs a
+small Deskbar calendar when first launched. Click it to open Calendar, or
+right-click it to open, quit or remove it.
 
 ![screenshot](documentation/images/main_window.png)
 
@@ -40,11 +43,11 @@ On Haiku, build and test an installable package from the repository root:
 packaging/build-hpkg.sh
 ```
 
-The package is written to `packages/calendar-0.2.0-9-<architecture>.hpkg`.
+The package is written to `packages/calendar-0.2.0-10-<architecture>.hpkg`.
 Install it with `pkgman`, substituting the generated filename:
 
 ```
-pkgman install ./packages/calendar-0.2.0-9-x86_64.hpkg
+pkgman install ./packages/calendar-0.2.0-10-x86_64.hpkg
 ```
 
 For a secondary 32-bit build on 64-bit Haiku, run:

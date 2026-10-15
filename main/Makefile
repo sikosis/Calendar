@@ -30,6 +30,7 @@ APP_MIME_SIG = application/x-vnd.Calendar
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS = \
 	 src/App.cpp  \
+	 src/CalendarDeskbarView.cpp  \
 	 src/CategoryWindow.cpp  \
 	 src/ColorPreview.cpp  \
 	 src/CategoryEditWindow.cpp  \
