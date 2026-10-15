@@ -73,8 +73,9 @@ SidePanelView::SidePanelView()
 	fMonthUpButton->SetExplicitMinSize(BSize(height + 5, height + 5));
 	fMonthDownButton->SetExplicitMinSize(BSize(height + 5, height + 5));
 
-	fTextFilter =
-		new BTextControl("FilterString", B_TRANSLATE("Filter:"), NULL, new BMessage(kFilterChanged));
+	fTextFilter = new BTextControl("FilterString", B_TRANSLATE("Filter:"),
+		NULL, new BMessage(kFilterChanged));
+	fTextFilter->SetModificationMessage(new BMessage(kFilterChanged));
 
 	fFilterClearButton =
 		new BButton("ClearFilter", B_TRANSLATE("Clear"), new BMessage(kFilterCleared));
@@ -103,6 +104,7 @@ SidePanelView::SidePanelView()
 
 	_UpdateDate(BDate::CurrentDate(B_LOCAL_TIME));
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
