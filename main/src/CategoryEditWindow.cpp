@@ -110,8 +110,9 @@ void
 CategoryEditWindow::_InitInterface()
 {
 	fMainView = new BView("MainView", B_WILL_DRAW);
-	fCategoryText = new BTextControl("CategoryText", NULL,
-		B_TRANSLATE("New category"), new BMessage(kCategoryTextChanged));
+	fCategoryText = new BTextControl("CategoryText",
+		B_TRANSLATE_CONTEXT("Name:", "EventWindow"), "",
+		new BMessage(kCategoryTextChanged));
 
 	fOkButton = new BButton("OkButton", B_TRANSLATE("OK"), new BMessage(kOkPressed));
 	fRevertButton = new BButton(
@@ -150,7 +151,9 @@ CategoryEditWindow::_InitInterface()
 
 	fColorPreview->Parent()->SetExplicitMaxSize(
 		BSize(B_SIZE_UNSET, fCategoryText->Bounds().Height()));
+	fCategoryText->MakeFocus(true);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
