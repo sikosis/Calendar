@@ -7,6 +7,7 @@
 #define _DATEHEADERBUTTON_H_
 
 #include <Control.h>
+#include <DateTime.h>
 
 
 class DateHeaderButton : public BControl
@@ -19,12 +20,15 @@ public:
 	virtual void	MouseUp(BPoint where);
 	virtual void	MouseMoved(BPoint where, uint32 code, const BMessage* drag);
 
+	void			SetDate(const BDate& date);
+
 private:
 	void			_UpdateDateHeader();
 
 	BString			fDayText;
 	BString			fDayOfWeekText;
 	BString			fMonthYearText;
+	BDate			fDate;
 
 	bool			fMouseInView;
 	bool			fMouseDown;

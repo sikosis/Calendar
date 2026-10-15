@@ -197,10 +197,12 @@ SidePanelView::_UpdateDate(const BDate& date)
 		return;
 
 	fCalendarView->SetDate(date);
+	fDateHeaderButton->SetDate(date);
 	_UpdateDateLabel();
 
 	Window()->PostMessage(kSelectedDateChanged);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 BDate

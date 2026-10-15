@@ -24,7 +24,8 @@
 DateHeaderButton::DateHeaderButton()
 	:
 	BControl("DateHeaderButton", NULL, new BMessage(kSetCalendarToCurrentDate),
-		B_WILL_DRAW)
+		B_WILL_DRAW),
+	fDate(BDate::CurrentDate(B_LOCAL_TIME))
 {
 	fMouseInView = false;
 	fMouseDown = false;
@@ -33,6 +34,20 @@ DateHeaderButton::DateHeaderButton()
 	SetExplicitMinSize(BSize(B_SIZE_UNSET, be_plain_font->Size() * 4.4));
 	_UpdateDateHeader();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+DateHeaderButton::SetDate(const BDate& date)
+{
+	if (!date.IsValid() || fDate == date)
+		return;
+
+	fDate = date;
+	_UpdateDateHeader();
+	Invalidate();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -155,7 +170,7 @@ DateHeaderButton::MouseMoved(BPoint where, uint32 code, const BMessage* drag)
 void
 DateHeaderButton::_UpdateDateHeader()
 {
-	time_t timeValue = (time_t) time(NULL);
+	time_t timeValue = BDateTime(fDate, BTime(12, 0, 0)).Time_t();
 
 	BString dateString;
 	BString dayString;
@@ -197,3 +212,4 @@ DateHeaderButton::_UpdateDateHeader()
 	fDayText = dayString;
 	fMonthYearText = monthYearString;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
