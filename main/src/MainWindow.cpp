@@ -31,6 +31,7 @@
 #include "Preferences.h"
 #include "ResourceLoader.h"
 #include "SidePanelView.h"
+#include "TasksWindow.h"
 
 
 #undef B_TRANSLATION_CONTEXT
@@ -45,7 +46,8 @@ MainWindow::MainWindow()
 	BWindow(((App*) be_app)->GetPreferences()->fMainWindowRect,
 		B_TRANSLATE_SYSTEM_NAME("Calendar"), B_TITLED_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
-	fEventWindow(NULL)
+	fEventWindow(NULL),
+	fTasksWindow(NULL)
 {
 	SetPulseRate(500000);
 
@@ -60,6 +62,7 @@ MainWindow::MainWindow()
 	fNotificationThread = -1;
 	StartNotificationThread();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 bool
@@ -79,6 +82,16 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		case kAddEventMessage:
 			_LaunchEventManager(NULL);
+			break;
+		case kMenuTasks:
+			if (fTasksWindow == NULL) {
+				fTasksWindow = new TasksWindow(BMessenger(this));
+				fTasksWindow->Show();
+			}
+			fTasksWindow->Activate();
+			break;
+		case kTasksWindowQuitting:
+			fTasksWindow = NULL;
 			break;
 		case kEditEventMessage:
 		case kDeleteEventMessage:
@@ -222,6 +235,7 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -310,6 +324,8 @@ MainWindow::_InitInterface()
 	fEventMenu->AddSeparatorItem();
 	fEventMenu->AddItem(new BMenuItem(
 		B_TRANSLATE("Go to today"), new BMessage(kSetCalendarToCurrentDate)));
+	fEventMenu->AddItem(new BMenuItem(
+		B_TRANSLATE("Tasks" B_UTF8_ELLIPSIS), new BMessage(kMenuTasks)));
 
 	fCategoryMenu = new BMenu(B_TRANSLATE("Category"));
 	fCategoryMenu->AddItem(new BMenuItem(B_TRANSLATE("Manage" B_UTF8_ELLIPSIS),

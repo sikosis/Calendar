@@ -138,7 +138,7 @@ pre.terminal {
 <img src="./images/calendar_icon_64.png" alt="Calendar icon" /></a>
 <p><span style="font-size: 1.5em; font-weight:bold">Calendar's User Documentation</span></p>
 <hr />
-<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#scripting">Scripting</a> — <a href="#help">Help</a></p>
+<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#tasks">Tasks</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#scripting">Scripting</a> — <a href="#help">Help</a></p>
 </div>
 <hr />
 <p><br /></p>
@@ -196,6 +196,14 @@ cannot be deleted but can be modified. Click on <span class="button">New...</spa
 </div>
 
 <p>Here you simply enter the name of the category and choose a color for it.</p>
+
+<h2>
+<a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="tasks" name="tasks">Tasks</a></h2>
+
+<p><span class="menu">Event | Tasks...</span> opens a helper for the current user's crontab. It lists active cron tasks and provides <span class="button">New...</span>, <span class="button">Edit...</span> and <span class="button">Delete</span> controls. Comments, blank lines and environment settings in the crontab are preserved when tasks are changed.</p>
+
+<p>A task consists of a schedule and a command. The schedule accepts the five standard cron fields, such as <span class="path">0 9 * * 1-5</span>, or a nickname such as <span class="path">@daily</span>. Calendar asks the system's <span class="path">crontab</span> command to validate and install every change.</p>
 
 <h2>
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>

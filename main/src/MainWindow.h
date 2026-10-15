@@ -18,12 +18,14 @@ class MainView;
 class Preferences;
 class PreferenceWindow;
 class SidePanelView;
+class TasksWindow;
 
 
 static const uint32 kMenuAppPref = 'kmap';
 static const uint32 kMenuCategoryEdit = 'kmce';
 static const uint32 kMenuHelp = 'kmhl';
 static const uint32 kMenuSyncGCAL = 'kmsg';
+static const uint32 kMenuTasks = 'kmts';
 
 static const int kAddEventMessage = 1005;
 
@@ -55,6 +57,7 @@ private:
 
 	MainView*		fMainView;
 	EventWindow*	fEventWindow;
+	TasksWindow*	fTasksWindow;
 	BMenuBar*		fMenuBar;
 	BMenu*			fAppMenu;
 	BMenu*			fEventMenu;
