@@ -14,17 +14,22 @@
 #include <FindDirectory.h>
 #include <LocaleRoster.h>
 #include <NodeInfo.h>
+#include <PropertyInfo.h>
 #include <Roster.h>
 #include <String.h>
 
 #include <locale.h>
+#include <stdio.h>
 
 #include "CalendarDeskbarView.h"
 #include "CategoryWindow.h"
+#include "EventTabView.h"
 #include "EventWindow.h"
 #include "MainWindow.h"
 #include "PreferenceWindow.h"
 #include "Preferences.h"
+#include "ScriptingUtils.h"
+#include "SidePanelView.h"
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
 const char* kSignature = "application/x-vnd.calendar";
@@ -32,6 +37,36 @@ const char* const kVersion = "0.2.0";
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "App"
+
+
+static property_info kCalendarProperties[] = {
+	{ "Version", { B_GET_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Return the Calendar version") },
+	{ "SelectedDate", { B_GET_PROPERTY, B_SET_PROPERTY },
+		{ B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Get or set the selected date in YYYY-MM-DD format") },
+	{ "View", { B_GET_PROPERTY, B_SET_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Get or set the day, week or month view") },
+	{ "Today", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Go to today's date") },
+	{ "NewEvent", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Open a new event window") },
+	{ "ManageCategories", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Open the category manager") },
+	{ 0 }
+};
+
+
+static void
+SendScriptingReply(BMessage* request, status_t error, const char* result = NULL)
+{
+	BMessage reply(B_REPLY);
+	if (result != NULL)
+		reply.AddString("result", result);
+	reply.AddInt32("error", error);
+	request->SendReply(&reply);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 App::App()
@@ -71,6 +106,31 @@ void
 App::ReadyToRun()
 {
 	_InstallDeskbarReplicant();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+status_t
+App::GetSupportedSuites(BMessage* message)
+{
+	message->AddString("suites", "suite/vnd.Sikosis-Calendar");
+	BPropertyInfo propertyInfo(kCalendarProperties);
+	message->AddFlat("messages", &propertyInfo);
+	return BApplication::GetSupportedSuites(message);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+BHandler*
+App::ResolveSpecifier(BMessage* message, int32 index, BMessage* specifier,
+	int32 form, const char* property)
+{
+	BPropertyInfo propertyInfo(kCalendarProperties);
+	if (propertyInfo.FindMatch(message, 0, specifier, form, property) >= 0)
+		return this;
+
+	return BApplication::ResolveSpecifier(
+		message, index, specifier, form, property);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -159,9 +219,122 @@ App::categoryWindow()
 }
 
 
+bool
+App::_HandleScriptingMessage(BMessage* message)
+{
+	int32 specifierIndex;
+	BMessage specifier;
+	BString property;
+	if (message->GetCurrentSpecifier(&specifierIndex, &specifier) != B_OK
+		|| specifier.FindString("property", &property) != B_OK) {
+		return false;
+	}
+
+	if (message->what == B_GET_PROPERTY && property == "Version") {
+		SendScriptingReply(message, B_OK, kVersion);
+		return true;
+	}
+
+	if (message->what == B_GET_PROPERTY && property == "SelectedDate") {
+		if (!fMainWindow->Lock()) {
+			SendScriptingReply(message, B_ERROR);
+			return true;
+		}
+
+		BDate date = fMainWindow->SelectedDate();
+		fMainWindow->Unlock();
+		char value[11];
+		snprintf(value, sizeof(value), "%04ld-%02ld-%02ld",
+			(long)date.Year(), (long)date.Month(), (long)date.Day());
+		SendScriptingReply(message, B_OK, value);
+		return true;
+	}
+
+	if (message->what == B_SET_PROPERTY && property == "SelectedDate") {
+		const char* value;
+		int year;
+		int month;
+		int day;
+		if (message->FindString("data", &value) != B_OK
+			|| !ParseIsoDate(value, year, month, day)) {
+			SendScriptingReply(message, B_BAD_VALUE);
+			return true;
+		}
+
+		BDate date(year, month, day);
+		if (!date.IsValid()) {
+			SendScriptingReply(message, B_BAD_VALUE);
+			return true;
+		}
+
+		BMessage command(kSelectionMessage);
+		command.AddInt32("year", year);
+		command.AddInt32("month", month);
+		command.AddInt32("day", day);
+		SendScriptingReply(message, fMainWindow->PostMessage(&command), value);
+		return true;
+	}
+
+	if (message->what == B_GET_PROPERTY && property == "View") {
+		if (!fMainWindow->Lock()) {
+			SendScriptingReply(message, B_ERROR);
+			return true;
+		}
+
+		int32 selectedView = fMainWindow->SelectedView();
+		fMainWindow->Unlock();
+		SendScriptingReply(message, B_OK, CalendarViewName(selectedView));
+		return true;
+	}
+
+	if (message->what == B_SET_PROPERTY && property == "View") {
+		const char* value;
+		int view;
+		if (message->FindString("data", &value) != B_OK
+			|| !ParseCalendarView(value, view)) {
+			SendScriptingReply(message, B_BAD_VALUE);
+			return true;
+		}
+
+		BMessage command(kChangeListTab);
+		command.AddInt32("tab", view);
+		SendScriptingReply(
+			message, fMainWindow->PostMessage(&command), CalendarViewName(view));
+		return true;
+	}
+
+	if (message->what == B_EXECUTE_PROPERTY && property == "Today") {
+		SendScriptingReply(
+			message, fMainWindow->PostMessage(kSetCalendarToCurrentDate));
+		return true;
+	}
+
+	if (message->what == B_EXECUTE_PROPERTY && property == "NewEvent") {
+		SendScriptingReply(message, fMainWindow->PostMessage(kAddEventMessage));
+		return true;
+	}
+
+	if (message->what == B_EXECUTE_PROPERTY
+		&& property == "ManageCategories") {
+		SendScriptingReply(message, PostMessage(kMenuCategoryEdit));
+		return true;
+	}
+
+	return false;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
 void
 App::MessageReceived(BMessage* message)
 {
+	if ((message->what == B_GET_PROPERTY
+			|| message->what == B_SET_PROPERTY
+			|| message->what == B_EXECUTE_PROPERTY)
+		&& _HandleScriptingMessage(message)) {
+		return;
+	}
+
 	switch (message->what) {
 
 		case kMenuAppPref:

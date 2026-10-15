@@ -43,11 +43,11 @@ On Haiku, build and test an installable package from the repository root:
 packaging/build-hpkg.sh
 ```
 
-The package is written to `packages/calendar-0.2.0-10-<architecture>.hpkg`.
+The package is written to `packages/calendar-0.2.0-11-<architecture>.hpkg`.
 Install it with `pkgman`, substituting the generated filename:
 
 ```
-pkgman install ./packages/calendar-0.2.0-10-x86_64.hpkg
+pkgman install ./packages/calendar-0.2.0-11-x86_64.hpkg
 ```
 
 For a secondary 32-bit build on 64-bit Haiku, run:
@@ -59,6 +59,23 @@ setarch x86 packaging/build-hpkg.sh
 The builder does not overwrite an existing package of the same version and
 revision. Move the existing package aside or increase the package revision
 before rebuilding it.
+
+Scripting
+---------
+
+Calendar supports Haiku scripting through `hey`. Use `hey Calendar GETSUITES`
+to inspect the complete vocabulary. Examples:
+
+```
+hey Calendar GET Version
+hey Calendar GET SelectedDate
+hey Calendar SET SelectedDate TO "2026-10-15"
+hey Calendar GET View
+hey Calendar SET View TO week
+hey Calendar DO Today
+hey Calendar DO NewEvent
+hey Calendar DO ManageCategories
+```
 
 
 For more information, please see the [Calendar documentation](documentation/Documentation.html).

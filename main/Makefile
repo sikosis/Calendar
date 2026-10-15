@@ -50,6 +50,7 @@ SRCS = \
 	 src/SidePanelView.cpp  \
 	 src/utils/ClockTime.cpp  \
 	 src/utils/ColorConverter.cpp  \
+	 src/utils/ScriptingUtils.cpp  \
 	 src/utils/ICal.cpp  \
 	 src/utils/ReminderTime.cpp  \
 	 src/utils/ResourceLoader.cpp  \

@@ -28,9 +28,12 @@ public:
 					~App();
 
 	void			ArgvReceived(int32 argc, char** argv);
+	status_t		GetSupportedSuites(BMessage* message);
 	void			MessageReceived(BMessage* message);
 	void			RefsReceived(BMessage* message);
 	void			ReadyToRun();
+	BHandler*		ResolveSpecifier(BMessage* message, int32 index,
+					BMessage* specifier, int32 form, const char* property);
 
 	void			AboutRequested();
 	bool			QuitRequested();
@@ -40,6 +43,7 @@ public:
 
 
 private:
+	bool			_HandleScriptingMessage(BMessage* message);
 	void			_InstallDeskbarReplicant();
 
 	MainWindow*		fMainWindow;

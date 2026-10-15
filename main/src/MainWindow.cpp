@@ -245,6 +245,22 @@ MainWindow::StopNotificationThread()
 }
 
 
+BDate
+MainWindow::SelectedDate() const
+{
+	return _GetSelectedCalendarDate();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+int32
+MainWindow::SelectedView() const
+{
+	return fEventsView->Selection();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
 void
 MainWindow::_InitInterface()
 {

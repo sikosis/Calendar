@@ -37,6 +37,8 @@ public:
 
 	void			StartNotificationThread();
 	void			StopNotificationThread();
+	BDate			SelectedDate() const;
+	int32			SelectedView() const;
 
 private:
 	void			_InitInterface();
