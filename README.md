@@ -12,6 +12,15 @@ native helper for managing the current user's scheduled cron tasks.
 
 ![screenshot](documentation/images/main_window.png)
 
+This project was originally written by a dedicated team of talented coders who laid a strong and thoughtful foundation. Over time, however, the code fell dormant — left unmaintained, its dependencies stale and its tooling obsolete. Rather than start over, I have brought new life to the project: modernizing the existing base, reviving its momentum, and extending the application toward its original promise. The goal is simple: to make it the best app on Haiku. Credit to the original authors, whose work this builds directly upon.
+
+---
+
+**Sikosis**
+Maintainer · [GitHub](https://github.com/sikosis)
+
+| **Status** | Active development |
+
 Note
 -------
 When building on 32bit Haiku, you need to change the build environment to use gcc11 with `setarch x86` before invoking `make`.
