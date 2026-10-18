@@ -1,4 +1,4 @@
-1	Czech	application/x-vnd.sikosis-Calendar	3957779383
+1	Czech	application/x-vnd.hcalendar	3957779383
 %event% is starting at %time%.	NotificationLoop		%event% začíná v %time%.
 Reminder	NotificationLoop		Upomínka
 A native Calendar application for Haiku.	App		Kalendář Haiku.

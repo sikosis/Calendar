@@ -19,7 +19,7 @@
 #define EVENT_DIRECTORY "config/settings/Calendar/events"
 
 const char* kApplicationSignature
-	= "application/x-vnd.sikosis-CalendarDaemon";
+	= "application/x-vnd.hcalendar-daemon";
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "Daemon"

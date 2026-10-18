@@ -4,7 +4,7 @@
  * Icons by Michele Frau (Zumi)
  */
 
-resource app_signature "application/x-vnd.sikosis-Calendar";
+resource app_signature "application/x-vnd.hcalendar";
 
 resource app_flags B_SINGLE_LAUNCH;
 

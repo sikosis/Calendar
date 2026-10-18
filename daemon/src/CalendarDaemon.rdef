@@ -1,4 +1,4 @@
-resource app_signature "application/x-vnd.sikosis-CalendarDaemon";
+resource app_signature "application/x-vnd.hcalendar-daemon";
 
 resource app_version {
 	short_info = "Calendar daemon",

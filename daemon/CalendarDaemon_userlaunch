@@ -1,4 +1,4 @@
-service x-vnd.sikosis-CalendarDaemon {
+service x-vnd.hcalendar-daemon {
 	launch /system/servers/CalendarDaemon
 	no_safemode
 	legacy

@@ -1,4 +1,4 @@
-1	English (British)	application/x-vnd.sikosis-Calendar	3957779383
+1	English (British)	application/x-vnd.hcalendar	3957779383
 %event% is starting at %time%.	NotificationLoop		%event% is starting at %time%.
 Reminder	NotificationLoop		Reminder
 A native Calendar application for Haiku.	App		A native Calendar application for Haiku.

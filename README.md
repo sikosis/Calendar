@@ -70,7 +70,7 @@ pkgman install ./packages/hcalendar-0.7.0-1-x86_64.hpkg
 ```
 
 This standalone edition uses the package name `hcalendar` and the
-application signature `application/x-vnd.sikosis-Calendar`. It conflicts with
+application signature `application/x-vnd.hcalendar`. It conflicts with
 the older HaikuPorts `calendar` package because both install `/apps/Calendar`.
 On the first installation, `pkgman` will offer to remove the older package.
 Calendar's settings directory is unchanged, so existing events, categories,
