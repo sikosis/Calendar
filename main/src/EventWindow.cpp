@@ -185,6 +185,25 @@ EventWindow::SetEvent(entry_ref ref)
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 
+bool
+EventWindow::SetEvent(const char* eventId)
+{
+	if (eventId == NULL)
+		return false;
+
+	Event* storedEvent = fDBManager->GetEvent(eventId);
+	if (storedEvent == NULL)
+		return false;
+
+	fEvent = storedEvent;
+	fOwnsEvent = true;
+	fNew = false;
+	_PopulateWithEvent(fEvent);
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
 void
 EventWindow::GetDateFromMessage(BMessage* message, BDate& date)
 {

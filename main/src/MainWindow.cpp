@@ -125,9 +125,15 @@ MainWindow::MessageReceived(BMessage* message)
 		}
 		case kLaunchEventManagerToModify:
 		{
-			Event* event;
-			message->FindPointer("event", (void**) (&event));
-			_LaunchEventManager(event);
+			BString eventId;
+			if (message->FindString("event_id", &eventId) == B_OK) {
+				_LaunchEventManager(NULL, NULL, eventId.String());
+				break;
+			}
+
+			Event* event = NULL;
+			if (message->FindPointer("event", (void**) (&event)) == B_OK)
+				_LaunchEventManager(event);
 			break;
 		}
 		case kEventWindowQuitting:
@@ -386,16 +392,21 @@ MainWindow::_InitInterface()
 
 
 void
-MainWindow::_LaunchEventManager(Event* event, entry_ref* ref)
+MainWindow::_LaunchEventManager(Event* event, entry_ref* ref,
+	const char* eventId)
 {
 	if (fEventWindow == NULL) {
 		fEventWindow = new EventWindow();
-		if (event != NULL)
+		if (eventId != NULL && !fEventWindow->SetEvent(eventId)) {
+			delete fEventWindow;
+			fEventWindow = NULL;
+			return;
+		} else if (event != NULL)
 			fEventWindow->SetEvent(event);
 		else if (ref != NULL)
 			fEventWindow->SetEvent(*ref);
 
-		if (event == NULL && ref == NULL) {
+		if (event == NULL && ref == NULL && eventId == NULL) {
 			BDate date = _GetSelectedCalendarDate();
 			fEventWindow->SetEventDate(date);
 		}
@@ -407,6 +418,7 @@ MainWindow::_LaunchEventManager(Event* event, entry_ref* ref)
 
 	fEventWindow->Activate();
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

@@ -44,7 +44,8 @@ public:
 
 private:
 	void			_InitInterface();
-	void			_LaunchEventManager(Event* event, entry_ref* ref = NULL);
+	void			_LaunchEventManager(Event* event, entry_ref* ref = NULL,
+					const char* eventId = NULL);
 	void			_OpenHelp();
 	void			_SyncWithPreferences();
 	void			_UpdateEventsView();

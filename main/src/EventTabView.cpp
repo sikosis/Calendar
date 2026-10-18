@@ -73,7 +73,7 @@ EventTabView::MessageReceived(BMessage* message)
 			Event* event = SelectedEvent();
 			if (event != NULL) {
 				BMessage msg(kLaunchEventManagerToModify);
-				msg.AddPointer("event", event);
+				msg.AddString("event_id", event->GetId());
 				Window()->PostMessage(&msg);
 			}
 			break;

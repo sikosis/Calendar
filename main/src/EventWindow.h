@@ -44,6 +44,7 @@ public:
 
 	void			SetEvent(Event* event);
 	void			SetEvent(entry_ref ref);
+	bool			SetEvent(const char* eventId);
 	void			SetEventDate(BDate& date);
 	void			SetStartDate(BDate& date);
 	void			SetEndDate(BDate& date);
