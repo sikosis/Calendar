@@ -1,4 +1,4 @@
-# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar [![platform](https://img.shields.io/badge/platform-Haiku-blue)](https://www.haiku-os.org/) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.6.1-orange) [![hey](https://img.shields.io/badge/scripting-hey-teal)](#scripting)
+# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar [![platform](https://img.shields.io/badge/platform-Haiku-blue)](https://www.haiku-os.org/) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.7.0-orange) [![hey](https://img.shields.io/badge/scripting-hey-teal)](#scripting)
 
 Calendar is a native Haiku application to manage your appointments.
 
@@ -60,13 +60,13 @@ packaging/build-hpkg.sh
 The package is written to:
 
 ```
-packages/calendar-0.6.1-1-<architecture>.hpkg
+packages/calendar-0.7.0-1-<architecture>.hpkg
 ```
 
 Install it with `pkgman`, substituting the generated filename:
 
 ```sh
-pkgman install ./packages/calendar-0.6.1-1-x86_64.hpkg
+pkgman install ./packages/calendar-0.7.0-1-x86_64.hpkg
 ```
 
 Calendar stores and launches scheduled tasks itself. Its persistent Deskbar
