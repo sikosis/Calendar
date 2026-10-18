@@ -430,7 +430,7 @@ MainWindow::_OpenHelp()
 	BEntry entry;
 
 	status_t error = pathFinder.FindPaths(
-		B_FIND_PATH_DOCUMENTATION_DIRECTORY, "packages/calendar_sikosis", paths);
+		B_FIND_PATH_DOCUMENTATION_DIRECTORY, "packages/hcalendar", paths);
 
 	for (int i = 0; i < paths.CountStrings(); ++i) {
 		if (error == B_OK && path.SetTo(paths.StringAt(i)) == B_OK

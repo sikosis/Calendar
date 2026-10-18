@@ -1,4 +1,4 @@
-name			calendar_sikosis
+name			hcalendar
 version			@VERSION@-@REVISION@
 architecture		@ARCHITECTURE@
 summary			"A native calendar application for Haiku"
@@ -20,7 +20,7 @@ source-urls {
 	"https://github.com/sikosis/Calendar"
 }
 provides {
-	calendar_sikosis = @VERSION@
+	hcalendar = @VERSION@
 	app:Calendar = @VERSION@
 }
 conflicts {

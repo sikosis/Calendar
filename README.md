@@ -60,16 +60,16 @@ packaging/build-hpkg.sh
 The package is written to:
 
 ```
-packages/calendar_sikosis-0.7.0-1-<architecture>.hpkg
+packages/hcalendar-0.7.0-1-<architecture>.hpkg
 ```
 
 Install it with `pkgman`, substituting the generated filename:
 
 ```sh
-pkgman install ./packages/calendar_sikosis-0.7.0-1-x86_64.hpkg
+pkgman install ./packages/hcalendar-0.7.0-1-x86_64.hpkg
 ```
 
-This standalone edition uses the package name `calendar_sikosis` and the
+This standalone edition uses the package name `hcalendar` and the
 application signature `application/x-vnd.sikosis-Calendar`. It conflicts with
 the older HaikuPorts `calendar` package because both install `/apps/Calendar`.
 On the first installation, `pkgman` will offer to remove the older package.
