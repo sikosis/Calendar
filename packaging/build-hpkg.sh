@@ -34,7 +34,7 @@ case "$architecture" in
 		;;
 esac
 
-packageName="calendar-$version-$revision-$architecture.hpkg"
+packageName="calendar_sikosis-$version-$revision-$architecture.hpkg"
 outputFile="$outputDirectory/$packageName"
 if [ -e "$outputFile" ]; then
 	echo "Refusing to overwrite existing package: $outputFile" >&2
@@ -54,16 +54,16 @@ trap 'rm -rf "$stageDirectory"' EXIT HUP INT TERM
 
 mkdir -p "$stageDirectory/apps"
 mkdir -p "$stageDirectory/data/deskbar/menu/Applications"
-mkdir -p "$stageDirectory/documentation/packages/calendar"
+mkdir -p "$stageDirectory/documentation/packages/calendar_sikosis"
 
 cp "$sourceDirectory/main/$objectDirectory/Calendar" \
 	"$stageDirectory/apps/Calendar"
 cp -R "$sourceDirectory/documentation/." \
-	"$stageDirectory/documentation/packages/calendar"
+	"$stageDirectory/documentation/packages/calendar_sikosis"
 cp "$sourceDirectory/LICENSE" \
-	"$stageDirectory/documentation/packages/calendar/LICENSE"
+	"$stageDirectory/documentation/packages/calendar_sikosis/LICENSE"
 cp "$sourceDirectory/README.md" \
-	"$stageDirectory/documentation/packages/calendar/README.md"
+	"$stageDirectory/documentation/packages/calendar_sikosis/README.md"
 ln -s ../../../../apps/Calendar \
 	"$stageDirectory/data/deskbar/menu/Applications/Calendar"
 

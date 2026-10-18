@@ -1178,7 +1178,7 @@ QueryDBManager::_CategoryMimetype()
 
 	mime.SetShortDescription("Calendar Category");
 	mime.SetLongDescription("Category of calendar events");
-	mime.SetPreferredApp("application/x-vnd.calendar");
+	mime.SetPreferredApp("application/x-vnd.sikosis-Calendar");
 
 	_AddAttribute(info, "Category:Name", "Name", B_STRING_TYPE, true, 300);
 	_AddAttribute(info, "Category:Color", "Color", B_RGB_COLOR_TYPE, false, 100);
@@ -1207,7 +1207,7 @@ QueryDBManager::_EventMimetype()
 
 	mime.SetShortDescription("Calendar Event");
 	mime.SetLongDescription("Generic calendar event");
-	mime.SetPreferredApp("application/x-vnd.calendar");
+	mime.SetPreferredApp("application/x-vnd.sikosis-Calendar");
 
 	_AddAttribute(info, "Event:Name", "Name", B_STRING_TYPE, true, 300);
 	_AddAttribute(info, "Event:Start", "Start", B_TIME_TYPE, true, 150);

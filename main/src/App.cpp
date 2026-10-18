@@ -33,7 +33,7 @@
 #include "SidePanelView.h"
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
-const char* kSignature = "application/x-vnd.calendar";
+const char* kSignature = "application/x-vnd.sikosis-Calendar";
 const char* const kVersion = "0.7.0";
 
 #undef B_TRANSLATION_CONTEXT

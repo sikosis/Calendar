@@ -1,4 +1,4 @@
-1	Romanian	application/x-vnd.Calendar	3957779383
+1	Romanian	application/x-vnd.sikosis-Calendar	3957779383
 %event% is starting at %time%.	NotificationLoop		%event% începe la %time%.
 Reminder	NotificationLoop		Memento
 A native Calendar application for Haiku.	App		O aplicație calendar nativă Haiku.
