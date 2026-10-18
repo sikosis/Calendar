@@ -125,6 +125,16 @@ EventListView::MessageReceived(BMessage* message)
 			break;
 		}
 
+		case kDuplicateActionInvoked:
+		{
+			fShowingPopUpMenu = false;
+			BView* view = Window()->FindView("EventsView");
+			BMessenger msgr(view);
+			BMessage msg(kDuplicateEventMessage);
+			msgr.SendMessage(&msg);
+			break;
+		}
+
 		case kDeleteActionInvoked:
 		case kCancelActionInvoked:
 		case kHideActionInvoked:
@@ -146,6 +156,7 @@ EventListView::MessageReceived(BMessage* message)
 			break;
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -263,6 +274,9 @@ EventListView::_ShowPopUpMenu(BPoint screen)
 	item = new BMenuItem(B_TRANSLATE("Edit" B_UTF8_ELLIPSIS),
 		new BMessage(kEditActionInvoked), 'E');
 	menu->AddItem(item);
+	item = new BMenuItem(B_TRANSLATE("Duplicate" B_UTF8_ELLIPSIS),
+		new BMessage(kDuplicateActionInvoked), 'D');
+	menu->AddItem(item);
 	item = new BMenuItem(
 		B_TRANSLATE("Delete"), new BMessage(kDeleteActionInvoked), 'T');
 	item->SetMarked(eventStatus & EVENT_DELETED);
@@ -282,6 +296,7 @@ EventListView::_ShowPopUpMenu(BPoint screen)
 	menu->Go(screen, true, true, true);
 	fShowingPopUpMenu = true;
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void

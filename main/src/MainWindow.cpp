@@ -94,6 +94,7 @@ MainWindow::MessageReceived(BMessage* message)
 			fTasksWindow = NULL;
 			break;
 		case kEditEventMessage:
+		case kDuplicateEventMessage:
 		case kDeleteEventMessage:
 		case kCancelEventMessage:
 		case kHideEventMessage:
@@ -127,7 +128,8 @@ MainWindow::MessageReceived(BMessage* message)
 		{
 			BString eventId;
 			if (message->FindString("event_id", &eventId) == B_OK) {
-				_LaunchEventManager(NULL, NULL, eventId.String());
+				_LaunchEventManager(NULL, NULL, eventId.String(),
+					message->GetBool("duplicate", false));
 				break;
 			}
 
@@ -316,6 +318,9 @@ MainWindow::_InitInterface()
 	fEventMenu->AddItem(new BMenuItem(
 		B_TRANSLATE_CONTEXT("Edit" B_UTF8_ELLIPSIS, "EventListView"),
 		new BMessage(kEditEventMessage), 'E', B_COMMAND_KEY));
+	fEventMenu->AddItem(new BMenuItem(
+		B_TRANSLATE_CONTEXT("Duplicate" B_UTF8_ELLIPSIS, "EventListView"),
+		new BMessage(kDuplicateEventMessage), 'D', B_COMMAND_KEY));
 	fEventMenu->AddItem(
 		new BMenuItem(B_TRANSLATE_CONTEXT("Delete", "EventListView"),
 			new BMessage(kDeleteEventMessage), 'T', B_COMMAND_KEY));
@@ -393,11 +398,18 @@ MainWindow::_InitInterface()
 
 void
 MainWindow::_LaunchEventManager(Event* event, entry_ref* ref,
-	const char* eventId)
+	const char* eventId, bool duplicate)
 {
 	if (fEventWindow == NULL) {
 		fEventWindow = new EventWindow();
-		if (eventId != NULL && !fEventWindow->SetEvent(eventId)) {
+		bool eventLoaded = true;
+		if (eventId != NULL) {
+			if (duplicate)
+				eventLoaded = fEventWindow->SetDuplicateEvent(eventId);
+			else
+				eventLoaded = fEventWindow->SetEvent(eventId);
+		}
+		if (!eventLoaded) {
 			delete fEventWindow;
 			fEventWindow = NULL;
 			return;
@@ -494,10 +506,10 @@ MainWindow::_ToggleEventMenu(BMessage* msg)
 	bool cancelled = msg->GetBool("_cancelled", false);
 	bool hidden = msg->GetBool("_hidden", false);
 
-	for (int i = 1; i <= 4; i++)
+	for (int i = 1; i <= 5; i++)
 		fEventMenu->ItemAt(i)->SetEnabled(index > -1);
-	fEventMenu->ItemAt(2)->SetMarked(deleted);
-	fEventMenu->ItemAt(3)->SetMarked(cancelled);
-	fEventMenu->ItemAt(4)->SetMarked(hidden);
+	fEventMenu->ItemAt(3)->SetMarked(deleted);
+	fEventMenu->ItemAt(4)->SetMarked(cancelled);
+	fEventMenu->ItemAt(5)->SetMarked(hidden);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//

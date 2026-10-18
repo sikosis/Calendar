@@ -204,6 +204,25 @@ EventWindow::SetEvent(const char* eventId)
 //---------------------------------------------------------------------------------------------------------------------------------//
 
 
+bool
+EventWindow::SetDuplicateEvent(const char* eventId)
+{
+	if (eventId == NULL)
+		return false;
+
+	Event* storedEvent = fDBManager->GetEvent(eventId);
+	if (storedEvent == NULL)
+		return false;
+
+	_PopulateWithEvent(storedEvent);
+	delete storedEvent;
+	fCancelledCheckBox->SetValue(B_CONTROL_OFF);
+	fHiddenCheckBox->SetValue(B_CONTROL_OFF);
+	return true;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
 void
 EventWindow::GetDateFromMessage(BMessage* message, BDate& date)
 {

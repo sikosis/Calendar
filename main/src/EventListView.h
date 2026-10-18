@@ -38,6 +38,7 @@ private:
 	static const int32 kDeleteActionInvoked = 1001;
 	static const int32 kCancelActionInvoked = 1002;
 	static const int32 kHideActionInvoked = 1003;
+	static const int32 kDuplicateActionInvoked = 1004;
 
 	void			_ShowPopUpMenu(BPoint screen);
 	void			_ShowEmptyPopUpMenu(BPoint screen);

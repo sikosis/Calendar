@@ -78,6 +78,17 @@ EventTabView::MessageReceived(BMessage* message)
 			}
 			break;
 		}
+		case kDuplicateEventMessage:
+		{
+			Event* event = SelectedEvent();
+			if (event != NULL) {
+				BMessage msg(kLaunchEventManagerToModify);
+				msg.AddString("event_id", event->GetId());
+				msg.AddBool("duplicate", true);
+				Window()->PostMessage(&msg);
+			}
+			break;
+		}
 		case kDeleteEventMessage:
 		case kCancelEventMessage:
 		case kHideEventMessage:
