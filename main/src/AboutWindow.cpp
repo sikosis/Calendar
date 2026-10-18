@@ -17,6 +17,7 @@
 #include <LayoutBuilder.h>
 #include <Message.h>
 #include <Resources.h>
+#include <Roster.h>
 #include <Size.h>
 #include <String.h>
 #include <StringView.h>
