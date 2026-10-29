@@ -55,6 +55,7 @@ SRCS = \
 	 src/TasksWindow.cpp  \
 	 src/utils/ClockTime.cpp  \
 	 src/utils/ColorConverter.cpp  \
+	 src/utils/LifeProgress.cpp  \
 	 src/utils/TaskModel.cpp  \
 	 src/utils/TaskSchedule.cpp  \
 	 src/utils/ScriptingUtils.cpp  \

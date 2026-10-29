@@ -82,6 +82,9 @@ Preferences::Load(const char* filename)
 	fHeaderVisible = storage.GetBool("headerVisible", false);
 	fFirstDeletion = storage.GetBool("firstDeletion", true);
 	fYearProgressVisible = storage.GetBool("yearProgressVisible", true);
+	fLifeProgressVisible = storage.GetBool("lifeProgressVisible", false);
+	fLifeBirthYear = storage.GetInt32("lifeBirthYear", 0);
+	fLifeExpectancy = storage.GetInt32("lifeExpectancy", 90);
 	fDefaultCategory
 		= storage.GetString("defaultCategory", B_TRANSLATE("Default"));
 	fBarColour = ui_color(B_KEYBOARD_NAVIGATION_COLOR);
@@ -172,6 +175,9 @@ Preferences::Save(const char* filename)
 	storage.AddBool("headerVisible", fHeaderVisible);
 	storage.AddBool("firstDeletion", fFirstDeletion);
 	storage.AddBool("yearProgressVisible", fYearProgressVisible);
+	storage.AddBool("lifeProgressVisible", fLifeProgressVisible);
+	storage.AddInt32("lifeBirthYear", fLifeBirthYear);
+	storage.AddInt32("lifeExpectancy", fLifeExpectancy);
 	storage.AddString("defaultCategory", fDefaultCategory);
 	storage.AddData(
 		"barColour", B_RGB_COLOR_TYPE, &fBarColour, sizeof(fBarColour));
@@ -200,6 +206,9 @@ Preferences::operator=(const Preferences& p)
 	fBarColour = p.fBarColour;
 	fYearProgressVisible = p.fYearProgressVisible;
 	fYearProgressColour = p.fYearProgressColour;
+	fLifeProgressVisible = p.fLifeProgressVisible;
+	fLifeBirthYear = p.fLifeBirthYear;
+	fLifeExpectancy = p.fLifeExpectancy;
 	fMainWindowRect = p.fMainWindowRect;
 	fEventWindowRect = p.fEventWindowRect;
 

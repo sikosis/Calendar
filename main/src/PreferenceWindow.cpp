@@ -14,12 +14,17 @@
 #include <CheckBox.h>
 #include <ColorControl.h>
 #include <ColorMenuItem.h>
+#include <DateTime.h>
 #include <LayoutBuilder.h>
 #include <MenuField.h>
 #include <PopUpMenu.h>
 #include <SeparatorView.h>
 #include <StringView.h>
+#include <TextControl.h>
+#include <TextView.h>
 #include <Window.h>
+
+#include <stdlib.h>
 
 #include "App.h"
 #include "Category.h"
@@ -29,6 +34,22 @@
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "PreferenceWindow"
+
+
+static int32
+ParsePositiveNumber(const char* text, int32 maximum)
+{
+	if (text == NULL || text[0] == '\0')
+		return 0;
+
+	char* end = NULL;
+	long value = strtol(text, &end, 10);
+	if (end == text || *end != '\0' || value <= 0 || value > maximum)
+		return 0;
+
+	return (int32)value;
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 PreferenceWindow::PreferenceWindow(BRect frame, Preferences* preferences)
@@ -84,6 +105,26 @@ PreferenceWindow::MessageReceived(BMessage* message)
 
 		case kApplyPreferencesMessage:
 		{
+			int32 currentYear = BDate::CurrentDate(B_LOCAL_TIME).Year();
+			if (fTempPreferences->fLifeProgressVisible
+				&& (fTempPreferences->fLifeBirthYear <= 0
+					|| fTempPreferences->fLifeBirthYear > currentYear
+					|| fTempPreferences->fLifeExpectancy <= 0)) {
+				BAlert* alert = new BAlert(
+					B_TRANSLATE("Invalid life progress settings"),
+					B_TRANSLATE("Enter a birth year no later than the current "
+						"year and an expected age between 1 and 200."),
+					B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL,
+					B_WARNING_ALERT);
+				alert->Go();
+				if (fTempPreferences->fLifeBirthYear <= 0
+					|| fTempPreferences->fLifeBirthYear > currentYear) {
+					fLifeBirthYearText->MakeFocus(true);
+				} else
+					fLifeExpectancyText->MakeFocus(true);
+				break;
+			}
+
 			*fCurrentPreferences = *fTempPreferences;
 			fApplyButton->SetEnabled(false);
 			BMessage changed(kAppPreferencesChanged);
@@ -124,6 +165,24 @@ PreferenceWindow::MessageReceived(BMessage* message)
 		case kYearProgressColourChangeMessage:
 			fTempPreferences->fYearProgressColour
 				= fYearProgressColourPicker->ValueAsColor();
+			_PreferencesModified();
+			break;
+
+		case kLifeProgressVisibilityChangeMessage:
+			fTempPreferences->fLifeProgressVisible
+				= fLifeProgressVisibleCB->Value() == B_CONTROL_ON;
+			fLifeBirthYearText->SetEnabled(
+				fTempPreferences->fLifeProgressVisible);
+			fLifeExpectancyText->SetEnabled(
+				fTempPreferences->fLifeProgressVisible);
+			_PreferencesModified();
+			break;
+
+		case kLifeProgressValueChangeMessage:
+			fTempPreferences->fLifeBirthYear
+				= ParsePositiveNumber(fLifeBirthYearText->Text(), 9999);
+			fTempPreferences->fLifeExpectancy
+				= ParsePositiveNumber(fLifeExpectancyText->Text(), 200);
 			_PreferencesModified();
 			break;
 
@@ -182,6 +241,25 @@ PreferenceWindow::_InitInterface()
 	fYearProgressColourPicker = new BColorControl(B_ORIGIN, B_CELLS_32x8, 1,
 		"YearProgressColourPicker",
 		new BMessage(kYearProgressColourChangeMessage));
+	fLifeProgressVisibleCB = new BCheckBox("LifeProgressVisible",
+		B_TRANSLATE("Show life progress"),
+		new BMessage(kLifeProgressVisibilityChangeMessage));
+	fLifeBirthYearText = new BTextControl("LifeBirthYear",
+		B_TRANSLATE("Birth year:"), NULL, NULL);
+	fLifeExpectancyText = new BTextControl("LifeExpectancy",
+		B_TRANSLATE("Live to age:"), NULL, NULL);
+	fLifeBirthYearText->SetModificationMessage(
+		new BMessage(kLifeProgressValueChangeMessage));
+	fLifeExpectancyText->SetModificationMessage(
+		new BMessage(kLifeProgressValueChangeMessage));
+	for (uint32 character = 0; character < '0'; character++) {
+		fLifeBirthYearText->TextView()->DisallowChar(character);
+		fLifeExpectancyText->TextView()->DisallowChar(character);
+	}
+	for (uint32 character = '9' + 1; character < 255; character++) {
+		fLifeBirthYearText->TextView()->DisallowChar(character);
+		fLifeExpectancyText->TextView()->DisallowChar(character);
+	}
 
 	fApplyButton = new BButton(
 		B_TRANSLATE("Apply"), new BMessage(kApplyPreferencesMessage));
@@ -205,6 +283,9 @@ PreferenceWindow::_InitInterface()
 		.Add(new BStringView("YearProgressColourLabel",
 			B_TRANSLATE("Year progress colour:")), 0, 5)
 		.Add(fYearProgressColourPicker, 1, 5)
+		.Add(fLifeProgressVisibleCB, 0, 6, 2)
+		.Add(fLifeBirthYearText, 0, 7, 2)
+		.Add(fLifeExpectancyText, 0, 8, 2)
 		.End()
 		.Add(new BSeparatorView(B_HORIZONTAL))
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
@@ -234,6 +315,17 @@ PreferenceWindow::_SyncPreferences(Preferences* preferences)
 		? B_CONTROL_ON : B_CONTROL_OFF);
 	fYearProgressColourPicker->SetValue(preferences->fYearProgressColour);
 	fYearProgressColourPicker->SetEnabled(preferences->fYearProgressVisible);
+	fLifeProgressVisibleCB->SetValue(preferences->fLifeProgressVisible
+		? B_CONTROL_ON : B_CONTROL_OFF);
+	BString birthYear;
+	if (preferences->fLifeBirthYear > 0)
+		birthYear << preferences->fLifeBirthYear;
+	fLifeBirthYearText->SetText(birthYear.String());
+	BString lifeExpectancy;
+	lifeExpectancy << preferences->fLifeExpectancy;
+	fLifeExpectancyText->SetText(lifeExpectancy.String());
+	fLifeBirthYearText->SetEnabled(preferences->fLifeProgressVisible);
+	fLifeExpectancyText->SetEnabled(preferences->fLifeProgressVisible);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 

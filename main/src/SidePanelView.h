@@ -43,22 +43,28 @@ public:
 	void			ShowWeekHeader(bool);
 	void			ShowYearProgress(bool state);
 	void			SetYearProgressColour(rgb_color colour);
+	void			ShowLifeProgress(bool state);
+	void			SetLifeProgressDetails(int32 birthYear, int32 lifeExpectancy);
 	void			ClearFilterText();
 
 private:
 	void			_UpdateDate(const BDate&);
 	void			_UpdateDateLabel();
 	void			_UpdateYearProgress();
+	void			_UpdateLifeProgress();
 
 	BStringView*	fYearLabel;
 	BStringView*	fMonthLabel;
 	BStatusBar*	fYearProgressBar;
+	BStatusBar*	fLifeProgressBar;
 	CalendarView*	fCalendarView;
 	DateHeaderButton* fDateHeaderButton;
 	BButton*		fMonthUpButton;
 	BButton*		fMonthDownButton;
 	BButton*		fFilterClearButton;
 	BTextControl*	fTextFilter;
+	int32			fLifeBirthYear;
+	int32			fLifeExpectancy;
 };
 
 #endif

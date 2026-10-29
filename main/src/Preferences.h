@@ -31,6 +31,9 @@ public:
 	rgb_color	fBarColour;
 	bool	fYearProgressVisible;
 	rgb_color	fYearProgressColour;
+	bool	fLifeProgressVisible;
+	int32	fLifeBirthYear;
+	int32	fLifeExpectancy;
 	BRect	fMainWindowRect;
 	BRect	fEventWindowRect;
 };

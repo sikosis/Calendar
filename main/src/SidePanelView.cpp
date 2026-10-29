@@ -17,6 +17,7 @@
 
 #include "CalendarView.h"
 #include "EventTabView.h"
+#include "LifeProgress.h"
 #include "MainView.h"
 #include "MainWindow.h"
 #include "PreferenceWindow.h"
@@ -64,6 +65,12 @@ SidePanelView::SidePanelView()
 	fYearProgressBar->SetMaxValue(100.0f);
 	fYearProgressBar->SetBarHeight(fYearProgressBar->BarHeight() / 2.0f);
 	fYearProgressBar->SetToolTip(B_TRANSLATE("Year progress"));
+	fLifeProgressBar = new BStatusBar("LifeProgress");
+	fLifeProgressBar->SetMaxValue(100.0f);
+	fLifeProgressBar->SetBarHeight(fLifeProgressBar->BarHeight() / 2.0f);
+	fLifeProgressBar->SetToolTip(B_TRANSLATE("Life progress"));
+	fLifeBirthYear = 0;
+	fLifeExpectancy = 90;
 
 	BFont font;
 	fMonthLabel->GetFont(&font);
@@ -100,7 +107,10 @@ SidePanelView::SidePanelView()
 		.AddStrut(5)
 		.Add(fCalendarView)
 		.AddStrut(5)
-		.Add(fYearProgressBar)
+		.AddGroup(B_VERTICAL, 5)
+			.Add(fYearProgressBar)
+			.Add(fLifeProgressBar)
+			.End()
 		.AddStrut(80)
 		.AddGlue(10)
 		.Add(fTextFilter)
@@ -113,6 +123,7 @@ SidePanelView::SidePanelView()
 
 	_UpdateDate(BDate::CurrentDate(B_LOCAL_TIME));
 	_UpdateYearProgress();
+	_UpdateLifeProgress();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -129,6 +140,7 @@ SidePanelView::MessageReceived(BMessage* message)
 				case kSystemDateChangeMessage:
 					fDateHeaderButton->MessageReceived(message);
 					_UpdateYearProgress();
+					_UpdateLifeProgress();
 					break;
 
 				default:
@@ -226,6 +238,27 @@ SidePanelView::SetYearProgressColour(rgb_color colour)
 
 
 void
+SidePanelView::ShowLifeProgress(bool state)
+{
+	if (state && fLifeProgressBar->IsHidden())
+		fLifeProgressBar->Show();
+	else if (!state && !fLifeProgressBar->IsHidden())
+		fLifeProgressBar->Hide();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+SidePanelView::SetLifeProgressDetails(int32 birthYear, int32 lifeExpectancy)
+{
+	fLifeBirthYear = birthYear;
+	fLifeExpectancy = lifeExpectancy;
+	_UpdateLifeProgress();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 SidePanelView::_UpdateDate(const BDate& date)
 {
 	if (!date.IsValid())
@@ -294,5 +327,23 @@ SidePanelView::_UpdateYearProgress()
 	percentageText << percentageValue << "%";
 	fYearProgressBar->SetTo(
 		percentage, yearText.String(), percentageText.String());
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+SidePanelView::_UpdateLifeProgress()
+{
+	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
+	if (!today.IsValid())
+		return;
+
+	float percentage = CalculateLifeProgress(today.Year(), today.DayOfYear(),
+		today.DaysInYear(), fLifeBirthYear, fLifeExpectancy);
+	int32 percentageValue = (int32)percentage;
+	BString percentageText;
+	percentageText << percentageValue << "%";
+	fLifeProgressBar->SetTo(
+		percentage, B_TRANSLATE("LIFE"), percentageText.String());
 }
 //---------------------------------------------------------------------------------------------------------------------------------//

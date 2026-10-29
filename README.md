@@ -7,6 +7,7 @@ events and show them in a day, week or month view. Calendar now has many improve
 including a Deskbar replicant icon showing the current date, hey scripting support and
 the Event menu provides Calendar's own scheduled task launcher. A configurable year
 progress bar below the month calendar shows how much of the current year has elapsed.
+An optional life progress bar can estimate progress from a birth year and expected age.
 
 ![screenshot](documentation/images/main_window.png)
 

@@ -12,6 +12,7 @@ class BCheckBox;
 class BColorControl;
 class BPopUpMenu;
 class BMenuField;
+class BTextControl;
 class Preferences;
 class QueryDBManager;
 
@@ -42,15 +43,20 @@ private:
 	static const int kBarColourChangeMessage = 1005;
 	static const int kYearProgressVisibilityChangeMessage = 1006;
 	static const int kYearProgressColourChangeMessage = 1007;
+	static const int kLifeProgressVisibilityChangeMessage = 1008;
+	static const int kLifeProgressValueChangeMessage = 1009;
 
 	BCheckBox*		fWeekNumberHeaderCB;
 	BCheckBox*		fYearProgressVisibleCB;
+	BCheckBox*		fLifeProgressVisibleCB;
 	BPopUpMenu*		fDayOfWeekMenu;
 	BPopUpMenu*		fDefaultCatMenu;
 	BMenuField*		fDayOfWeekMenuField;
 	BMenuField*		fDefaultCatMenuField;
 	BColorControl*	fBarColourPicker;
 	BColorControl*	fYearProgressColourPicker;
+	BTextControl*	fLifeBirthYearText;
+	BTextControl*	fLifeExpectancyText;
 	BButton*		fApplyButton;
 	BButton*		fRevertButton;
 
