@@ -62,6 +62,7 @@ SidePanelView::SidePanelView()
 	fMonthDownButton->SetFlat(true);
 	fYearProgressBar = new BStatusBar("YearProgress");
 	fYearProgressBar->SetMaxValue(100.0f);
+	fYearProgressBar->SetBarHeight(5.0f);
 	fYearProgressBar->SetToolTip(B_TRANSLATE("Year progress"));
 
 	BFont font;
