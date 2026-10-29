@@ -74,6 +74,8 @@ SidePanelView::SidePanelView()
 	fLifeProgressBar->SetToolTip(B_TRANSLATE("Life progress"));
 	fLifeBirthYear = 0;
 	fLifeExpectancy = 90;
+	fYearProgressVisible = true;
+	fLifeProgressVisible = true;
 
 	BFont font;
 	fMonthLabel->GetFont(&font);
@@ -223,9 +225,13 @@ SidePanelView::ShowWeekHeader(bool state)
 void
 SidePanelView::ShowYearProgress(bool state)
 {
-	if (state && fYearProgressBar->IsHidden())
+	if (state == fYearProgressVisible)
+		return;
+
+	fYearProgressVisible = state;
+	if (state)
 		fYearProgressBar->Show();
-	else if (!state && !fYearProgressBar->IsHidden())
+	else
 		fYearProgressBar->Hide();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
@@ -243,9 +249,13 @@ SidePanelView::SetYearProgressColour(rgb_color colour)
 void
 SidePanelView::ShowLifeProgress(bool state)
 {
-	if (state && fLifeProgressBar->IsHidden())
+	if (state == fLifeProgressVisible)
+		return;
+
+	fLifeProgressVisible = state;
+	if (state)
 		fLifeProgressBar->Show();
-	else if (!state && !fLifeProgressBar->IsHidden())
+	else
 		fLifeProgressBar->Hide();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//

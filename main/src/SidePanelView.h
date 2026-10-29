@@ -66,6 +66,8 @@ private:
 	BTextControl*	fTextFilter;
 	int32			fLifeBirthYear;
 	int32			fLifeExpectancy;
+	bool			fYearProgressVisible;
+	bool			fLifeProgressVisible;
 };
 
 #endif
