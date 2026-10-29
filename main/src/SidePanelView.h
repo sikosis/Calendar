@@ -45,6 +45,7 @@ public:
 	void			SetYearProgressColour(rgb_color colour);
 	void			ShowLifeProgress(bool state);
 	void			SetLifeProgressDetails(int32 birthYear, int32 lifeExpectancy);
+	void			SetLifeProgressColour(rgb_color colour);
 	void			ClearFilterText();
 
 private:

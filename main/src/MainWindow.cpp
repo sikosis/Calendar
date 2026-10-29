@@ -481,6 +481,8 @@ MainWindow::_SyncWithPreferences()
 		fSidePanelView->ShowLifeProgress(preferences->fLifeProgressVisible);
 		fSidePanelView->SetLifeProgressDetails(preferences->fLifeBirthYear,
 			preferences->fLifeExpectancy);
+		fSidePanelView->SetLifeProgressColour(
+			preferences->fLifeProgressColour);
 		fEventsView->SetBarColour(preferences->fBarColour);
 	}
 }

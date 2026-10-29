@@ -262,6 +262,15 @@ SidePanelView::SetLifeProgressDetails(int32 birthYear, int32 lifeExpectancy)
 
 
 void
+SidePanelView::SetLifeProgressColour(rgb_color colour)
+{
+	colour.alpha = 255;
+	fLifeProgressBar->SetBarColor(colour);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 SidePanelView::_UpdateDate(const BDate& date)
 {
 	if (!date.IsValid())

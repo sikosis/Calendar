@@ -179,6 +179,8 @@ PreferenceWindow::MessageReceived(BMessage* message)
 				fTempPreferences->fLifeProgressVisible);
 			fLifeExpectancyText->SetEnabled(
 				fTempPreferences->fLifeProgressVisible);
+			fLifeProgressColourPicker->SetEnabled(
+				fTempPreferences->fLifeProgressVisible);
 			_PreferencesModified();
 			break;
 
@@ -187,6 +189,12 @@ PreferenceWindow::MessageReceived(BMessage* message)
 				= ParsePositiveNumber(fLifeBirthYearText->Text(), 9999);
 			fTempPreferences->fLifeExpectancy
 				= ParsePositiveNumber(fLifeExpectancyText->Text(), 200);
+			_PreferencesModified();
+			break;
+
+		case kLifeProgressColourChangeMessage:
+			fTempPreferences->fLifeProgressColour
+				= fLifeProgressColourPicker->ValueAsColor();
 			_PreferencesModified();
 			break;
 
@@ -252,6 +260,9 @@ PreferenceWindow::_InitInterface()
 		B_TRANSLATE("Birth year:"), NULL, NULL);
 	fLifeExpectancyText = new BTextControl("LifeExpectancy",
 		B_TRANSLATE("Live to age:"), NULL, NULL);
+	fLifeProgressColourPicker = new BColorControl(B_ORIGIN, B_CELLS_32x8, 1,
+		"LifeProgressColourPicker",
+		new BMessage(kLifeProgressColourChangeMessage));
 	fLifeBirthYearText->SetModificationMessage(
 		new BMessage(kLifeProgressValueChangeMessage));
 	fLifeExpectancyText->SetModificationMessage(
@@ -290,6 +301,9 @@ PreferenceWindow::_InitInterface()
 		.Add(fLifeProgressVisibleCB, 0, 6, 2)
 		.Add(fLifeBirthYearText, 0, 7, 2)
 		.Add(fLifeExpectancyText, 0, 8, 2)
+		.Add(new BStringView("LifeProgressColourLabel",
+			B_TRANSLATE("Life progress colour:")), 0, 9)
+		.Add(fLifeProgressColourPicker, 1, 9)
 		.End()
 		.Add(new BSeparatorView(B_HORIZONTAL))
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
@@ -330,6 +344,8 @@ PreferenceWindow::_SyncPreferences(Preferences* preferences)
 	fLifeExpectancyText->SetText(lifeExpectancy.String());
 	fLifeBirthYearText->SetEnabled(preferences->fLifeProgressVisible);
 	fLifeExpectancyText->SetEnabled(preferences->fLifeProgressVisible);
+	fLifeProgressColourPicker->SetValue(preferences->fLifeProgressColour);
+	fLifeProgressColourPicker->SetEnabled(preferences->fLifeProgressVisible);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 

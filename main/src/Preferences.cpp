@@ -105,6 +105,15 @@ Preferences::Load(const char* filename)
 		fYearProgressColour = *(const rgb_color*) colourData;
 		fYearProgressColour.alpha = 255;
 	}
+	fLifeProgressColour = ui_color(B_STATUS_BAR_COLOR);
+	colourData = NULL;
+	colourSize = 0;
+	if (storage.FindData("lifeProgressColour", B_RGB_COLOR_TYPE, &colourData,
+			&colourSize) == B_OK
+		&& colourSize == sizeof(rgb_color)) {
+		fLifeProgressColour = *(const rgb_color*) colourData;
+		fLifeProgressColour.alpha = 255;
+	}
 	fMainWindowRect = storage.GetRect("mainWindowRect", BRect());
 	fEventWindowRect = storage.GetRect("eventWindowRect", BRect());
 
@@ -183,6 +192,8 @@ Preferences::Save(const char* filename)
 		"barColour", B_RGB_COLOR_TYPE, &fBarColour, sizeof(fBarColour));
 	storage.AddData("yearProgressColour", B_RGB_COLOR_TYPE,
 		&fYearProgressColour, sizeof(fYearProgressColour));
+	storage.AddData("lifeProgressColour", B_RGB_COLOR_TYPE,
+		&fLifeProgressColour, sizeof(fLifeProgressColour));
 	storage.AddRect("mainWindowRect", fMainWindowRect);
 	storage.AddRect("eventWindowRect", fEventWindowRect);
 
@@ -209,6 +220,7 @@ Preferences::operator=(const Preferences& p)
 	fLifeProgressVisible = p.fLifeProgressVisible;
 	fLifeBirthYear = p.fLifeBirthYear;
 	fLifeExpectancy = p.fLifeExpectancy;
+	fLifeProgressColour = p.fLifeProgressColour;
 	fMainWindowRect = p.fMainWindowRect;
 	fEventWindowRect = p.fEventWindowRect;
 

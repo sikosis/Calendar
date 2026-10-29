@@ -34,6 +34,7 @@ public:
 	bool	fLifeProgressVisible;
 	int32	fLifeBirthYear;
 	int32	fLifeExpectancy;
+	rgb_color	fLifeProgressColour;
 	BRect	fMainWindowRect;
 	BRect	fEventWindowRect;
 };

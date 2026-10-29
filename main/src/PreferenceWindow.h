@@ -45,6 +45,7 @@ private:
 	static const int kYearProgressColourChangeMessage = 1007;
 	static const int kLifeProgressVisibilityChangeMessage = 1008;
 	static const int kLifeProgressValueChangeMessage = 1009;
+	static const int kLifeProgressColourChangeMessage = 1010;
 
 	BCheckBox*		fWeekNumberHeaderCB;
 	BCheckBox*		fYearProgressVisibleCB;
@@ -55,6 +56,7 @@ private:
 	BMenuField*		fDefaultCatMenuField;
 	BColorControl*	fBarColourPicker;
 	BColorControl*	fYearProgressColourPicker;
+	BColorControl*	fLifeProgressColourPicker;
 	BTextControl*	fLifeBirthYearText;
 	BTextControl*	fLifeExpectancyText;
 	BButton*		fApplyButton;
