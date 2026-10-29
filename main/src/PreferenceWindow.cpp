@@ -175,12 +175,6 @@ PreferenceWindow::MessageReceived(BMessage* message)
 		case kLifeProgressVisibilityChangeMessage:
 			fTempPreferences->fLifeProgressVisible
 				= fLifeProgressVisibleCB->Value() == B_CONTROL_ON;
-			fLifeBirthYearText->SetEnabled(
-				fTempPreferences->fLifeProgressVisible);
-			fLifeExpectancyText->SetEnabled(
-				fTempPreferences->fLifeProgressVisible);
-			fLifeProgressColourPicker->SetEnabled(
-				fTempPreferences->fLifeProgressVisible);
 			_PreferencesModified();
 			break;
 
@@ -342,10 +336,7 @@ PreferenceWindow::_SyncPreferences(Preferences* preferences)
 	BString lifeExpectancy;
 	lifeExpectancy << preferences->fLifeExpectancy;
 	fLifeExpectancyText->SetText(lifeExpectancy.String());
-	fLifeBirthYearText->SetEnabled(preferences->fLifeProgressVisible);
-	fLifeExpectancyText->SetEnabled(preferences->fLifeProgressVisible);
 	fLifeProgressColourPicker->SetValue(preferences->fLifeProgressColour);
-	fLifeProgressColourPicker->SetEnabled(preferences->fLifeProgressVisible);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
