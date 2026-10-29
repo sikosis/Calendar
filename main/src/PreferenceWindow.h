@@ -40,13 +40,17 @@ private:
 	static const int kRevertPreferencesMessage = 1003;
 	static const int kDefaultCategoryChangeMessage = 1004;
 	static const int kBarColourChangeMessage = 1005;
+	static const int kYearProgressVisibilityChangeMessage = 1006;
+	static const int kYearProgressColourChangeMessage = 1007;
 
 	BCheckBox*		fWeekNumberHeaderCB;
+	BCheckBox*		fYearProgressVisibleCB;
 	BPopUpMenu*		fDayOfWeekMenu;
 	BPopUpMenu*		fDefaultCatMenu;
 	BMenuField*		fDayOfWeekMenuField;
 	BMenuField*		fDefaultCatMenuField;
 	BColorControl*	fBarColourPicker;
+	BColorControl*	fYearProgressColourPicker;
 	BButton*		fApplyButton;
 	BButton*		fRevertButton;
 

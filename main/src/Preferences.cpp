@@ -81,6 +81,7 @@ Preferences::Load(const char* filename)
 	fViewMode = storage.GetInt32("viewMode", 0);
 	fHeaderVisible = storage.GetBool("headerVisible", false);
 	fFirstDeletion = storage.GetBool("firstDeletion", true);
+	fYearProgressVisible = storage.GetBool("yearProgressVisible", true);
 	fDefaultCategory
 		= storage.GetString("defaultCategory", B_TRANSLATE("Default"));
 	fBarColour = ui_color(B_KEYBOARD_NAVIGATION_COLOR);
@@ -91,6 +92,15 @@ Preferences::Load(const char* filename)
 		&& colourSize == sizeof(rgb_color)) {
 		fBarColour = *(const rgb_color*) colourData;
 		fBarColour.alpha = 255;
+	}
+	fYearProgressColour = ui_color(B_STATUS_BAR_COLOR);
+	colourData = NULL;
+	colourSize = 0;
+	if (storage.FindData("yearProgressColour", B_RGB_COLOR_TYPE, &colourData,
+			&colourSize) == B_OK
+		&& colourSize == sizeof(rgb_color)) {
+		fYearProgressColour = *(const rgb_color*) colourData;
+		fYearProgressColour.alpha = 255;
 	}
 	fMainWindowRect = storage.GetRect("mainWindowRect", BRect());
 	fEventWindowRect = storage.GetRect("eventWindowRect", BRect());
@@ -161,9 +171,12 @@ Preferences::Save(const char* filename)
 	storage.AddInt32("viewMode", fViewMode);
 	storage.AddBool("headerVisible", fHeaderVisible);
 	storage.AddBool("firstDeletion", fFirstDeletion);
+	storage.AddBool("yearProgressVisible", fYearProgressVisible);
 	storage.AddString("defaultCategory", fDefaultCategory);
 	storage.AddData(
 		"barColour", B_RGB_COLOR_TYPE, &fBarColour, sizeof(fBarColour));
+	storage.AddData("yearProgressColour", B_RGB_COLOR_TYPE,
+		&fYearProgressColour, sizeof(fYearProgressColour));
 	storage.AddRect("mainWindowRect", fMainWindowRect);
 	storage.AddRect("eventWindowRect", fEventWindowRect);
 
@@ -179,9 +192,14 @@ Preferences::operator=(const Preferences& p)
 {
 	fSettingsPath = p.fSettingsPath;
 	fStartOfWeekOffset = p.fStartOfWeekOffset;
+	fViewMode = p.fViewMode;
+	fSelectedTab = p.fSelectedTab;
 	fHeaderVisible = p.fHeaderVisible;
+	fFirstDeletion = p.fFirstDeletion;
 	fDefaultCategory = p.fDefaultCategory;
 	fBarColour = p.fBarColour;
+	fYearProgressVisible = p.fYearProgressVisible;
+	fYearProgressColour = p.fYearProgressColour;
 	fMainWindowRect = p.fMainWindowRect;
 	fEventWindowRect = p.fEventWindowRect;
 

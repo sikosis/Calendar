@@ -113,6 +113,20 @@ PreferenceWindow::MessageReceived(BMessage* message)
 			_PreferencesModified();
 			break;
 
+		case kYearProgressVisibilityChangeMessage:
+			fTempPreferences->fYearProgressVisible
+				= fYearProgressVisibleCB->Value() == B_CONTROL_ON;
+			fYearProgressColourPicker->SetEnabled(
+				fTempPreferences->fYearProgressVisible);
+			_PreferencesModified();
+			break;
+
+		case kYearProgressColourChangeMessage:
+			fTempPreferences->fYearProgressColour
+				= fYearProgressColourPicker->ValueAsColor();
+			_PreferencesModified();
+			break;
+
 		default:
 			BWindow::MessageReceived(message);
 			break;
@@ -162,6 +176,12 @@ PreferenceWindow::_InitInterface()
 	fWeekNumberHeaderCB->SetValue(B_CONTROL_OFF);
 	fBarColourPicker = new BColorControl(B_ORIGIN, B_CELLS_32x8, 1,
 		"BarColourPicker", new BMessage(kBarColourChangeMessage));
+	fYearProgressVisibleCB = new BCheckBox("YearProgressVisible",
+		B_TRANSLATE("Show year progress"),
+		new BMessage(kYearProgressVisibilityChangeMessage));
+	fYearProgressColourPicker = new BColorControl(B_ORIGIN, B_CELLS_32x8, 1,
+		"YearProgressColourPicker",
+		new BMessage(kYearProgressColourChangeMessage));
 
 	fApplyButton = new BButton(
 		B_TRANSLATE("Apply"), new BMessage(kApplyPreferencesMessage));
@@ -181,6 +201,10 @@ PreferenceWindow::_InitInterface()
 		.Add(new BStringView(
 			"BarColourLabel", B_TRANSLATE("Bar colour:")), 0, 3)
 		.Add(fBarColourPicker, 1, 3)
+		.Add(fYearProgressVisibleCB, 0, 4, 2)
+		.Add(new BStringView("YearProgressColourLabel",
+			B_TRANSLATE("Year progress colour:")), 0, 5)
+		.Add(fYearProgressColourPicker, 1, 5)
 		.End()
 		.Add(new BSeparatorView(B_HORIZONTAL))
 		.AddGroup(B_HORIZONTAL, B_USE_DEFAULT_SPACING)
@@ -206,6 +230,10 @@ PreferenceWindow::_SyncPreferences(Preferences* preferences)
 	BMenuItem* item = fDayOfWeekMenu->ItemAt(preferences->fStartOfWeekOffset);
 	item->SetMarked(true);
 	fBarColourPicker->SetValue(preferences->fBarColour);
+	fYearProgressVisibleCB->SetValue(preferences->fYearProgressVisible
+		? B_CONTROL_ON : B_CONTROL_OFF);
+	fYearProgressColourPicker->SetValue(preferences->fYearProgressColour);
+	fYearProgressColourPicker->SetEnabled(preferences->fYearProgressVisible);
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 

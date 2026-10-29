@@ -7,12 +7,14 @@
 #define SIDE_PANEL_VIEW_H
 
 #include <DateTime.h>
+#include <InterfaceDefs.h>
 #include <View.h>
 
 #include "CalendarView.h"
 #include "DateHeaderButton.h"
 
 class BButton;
+class BStatusBar;
 class BStringView;
 class BTextControl;
 
@@ -39,14 +41,18 @@ public:
 	const char*		GetFilterQuery() const;
 	void			SetStartOfWeek(int32);
 	void			ShowWeekHeader(bool);
+	void			ShowYearProgress(bool state);
+	void			SetYearProgressColour(rgb_color colour);
 	void			ClearFilterText();
 
 private:
 	void			_UpdateDate(const BDate&);
 	void			_UpdateDateLabel();
+	void			_UpdateYearProgress();
 
 	BStringView*	fYearLabel;
 	BStringView*	fMonthLabel;
+	BStatusBar*	fYearProgressBar;
 	CalendarView*	fCalendarView;
 	DateHeaderButton* fDateHeaderButton;
 	BButton*		fMonthUpButton;

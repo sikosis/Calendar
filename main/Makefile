@@ -62,6 +62,7 @@ SRCS = \
 	 src/utils/ReminderTime.cpp  \
 	 src/utils/ResourceLoader.cpp  \
 	 src/utils/TimeInterval.cpp  \
+	 src/utils/YearProgress.cpp  \
 	 src/model/Category.cpp  \
 	 src/model/Event.cpp \
 	 src/db/QueryDBManager.cpp

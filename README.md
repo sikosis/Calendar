@@ -5,7 +5,8 @@ Calendar is a native Haiku application to manage your appointments.
 You can create, duplicate, edit and delete events, and cancel or hide them, categorise
 events and show them in a day, week or month view. Calendar now has many improvements,
 including a Deskbar replicant icon showing the current date, hey scripting support and
-the Event menu provides Calendar's own scheduled task launcher.
+the Event menu provides Calendar's own scheduled task launcher. A configurable year
+progress bar below the month calendar shows how much of the current year has elapsed.
 
 ![screenshot](documentation/images/main_window.png)
 

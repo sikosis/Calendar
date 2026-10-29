@@ -11,6 +11,8 @@
 #include <DateFormat.h>
 #include <LayoutBuilder.h>
 #include <LocaleRoster.h>
+#include <StatusBar.h>
+#include <String.h>
 #include <StringView.h>
 
 #include "CalendarView.h"
@@ -18,6 +20,7 @@
 #include "MainView.h"
 #include "MainWindow.h"
 #include "PreferenceWindow.h"
+#include "YearProgress.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SidePanelView"
@@ -57,6 +60,9 @@ SidePanelView::SidePanelView()
 
 	fMonthUpButton->SetFlat(true);
 	fMonthDownButton->SetFlat(true);
+	fYearProgressBar = new BStatusBar("YearProgress");
+	fYearProgressBar->SetMaxValue(100.0f);
+	fYearProgressBar->SetToolTip(B_TRANSLATE("Year progress"));
 
 	BFont font;
 	fMonthLabel->GetFont(&font);
@@ -92,6 +98,8 @@ SidePanelView::SidePanelView()
 			.End()
 		.AddStrut(5)
 		.Add(fCalendarView)
+		.AddStrut(5)
+		.Add(fYearProgressBar)
 		.AddStrut(80)
 		.AddGlue(10)
 		.Add(fTextFilter)
@@ -103,6 +111,7 @@ SidePanelView::SidePanelView()
 		.End();
 
 	_UpdateDate(BDate::CurrentDate(B_LOCAL_TIME));
+	_UpdateYearProgress();
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
 
@@ -118,6 +127,7 @@ SidePanelView::MessageReceived(BMessage* message)
 			switch (change) {
 				case kSystemDateChangeMessage:
 					fDateHeaderButton->MessageReceived(message);
+					_UpdateYearProgress();
 					break;
 
 				default:
@@ -166,6 +176,7 @@ SidePanelView::MessageReceived(BMessage* message)
 			break;
 	}
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -190,6 +201,27 @@ SidePanelView::ShowWeekHeader(bool state)
 {
 	fCalendarView->SetWeekNumberHeaderVisible(state);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+SidePanelView::ShowYearProgress(bool state)
+{
+	if (state && fYearProgressBar->IsHidden())
+		fYearProgressBar->Show();
+	else if (!state && !fYearProgressBar->IsHidden())
+		fYearProgressBar->Hide();
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+SidePanelView::SetYearProgressColour(rgb_color colour)
+{
+	colour.alpha = 255;
+	fYearProgressBar->SetBarColor(colour);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
 
 
 void
@@ -241,3 +273,25 @@ SidePanelView::_UpdateDateLabel()
 
 	fMonthLabel->SetText(monthYearString);
 }
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
+SidePanelView::_UpdateYearProgress()
+{
+	BDate today = BDate::CurrentDate(B_LOCAL_TIME);
+	if (!today.IsValid())
+		return;
+
+	float percentage
+		= CalculateYearProgress(today.DayOfYear(), today.DaysInYear());
+	int32 percentageValue = (int32)percentage;
+
+	BString yearText;
+	yearText << today.Year();
+	BString percentageText;
+	percentageText << percentageValue << "%";
+	fYearProgressBar->SetTo(
+		percentage, yearText.String(), percentageText.String());
+}
+//---------------------------------------------------------------------------------------------------------------------------------//

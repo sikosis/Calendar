@@ -475,6 +475,9 @@ MainWindow::_SyncWithPreferences()
 			fSidePanelView->ShowWeekHeader(false);
 
 		fSidePanelView->SetStartOfWeek(preferences->fStartOfWeekOffset);
+		fSidePanelView->ShowYearProgress(preferences->fYearProgressVisible);
+		fSidePanelView->SetYearProgressColour(
+			preferences->fYearProgressColour);
 		fEventsView->SetBarColour(preferences->fBarColour);
 	}
 }

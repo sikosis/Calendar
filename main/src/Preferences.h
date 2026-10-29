@@ -29,6 +29,8 @@ public:
 	bool	fFirstDeletion;
 	BString	fDefaultCategory;
 	rgb_color	fBarColour;
+	bool	fYearProgressVisible;
+	rgb_color	fYearProgressColour;
 	BRect	fMainWindowRect;
 	BRect	fEventWindowRect;
 };
