@@ -9,11 +9,14 @@
 #include <Button.h>
 #include <Catalog.h>
 #include <DateFormat.h>
+#include <Font.h>
 #include <LayoutBuilder.h>
 #include <LocaleRoster.h>
+#include <Message.h>
 #include <StatusBar.h>
 #include <String.h>
 #include <StringView.h>
+#include <TextControl.h>
 
 #include "CalendarView.h"
 #include "EventTabView.h"

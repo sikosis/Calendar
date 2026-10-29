@@ -8,6 +8,7 @@
 
 #include "PreferenceWindow.h"
 
+#include <Alert.h>
 #include <Application.h>
 #include <Button.h>
 #include <Catalog.h>
@@ -17,8 +18,11 @@
 #include <DateTime.h>
 #include <LayoutBuilder.h>
 #include <MenuField.h>
+#include <MenuItem.h>
+#include <Message.h>
 #include <PopUpMenu.h>
 #include <SeparatorView.h>
+#include <String.h>
 #include <StringView.h>
 #include <TextControl.h>
 #include <TextView.h>
