@@ -14,6 +14,8 @@
 
 class BButton;
 class BColorControl;
+class BMenuItem;
+class BPopUpMenu;
 class BTextControl;
 class BTextView;
 
@@ -35,12 +37,16 @@ private:
 
 	static const uint32 kSavePressed = 1000;
 	static const uint32 kCancelPressed = 1001;
+	static const uint32 kColourPresetSelected = 1002;
+	static const uint32 kCustomColourSelected = 1003;
 
 	BMessenger		fTarget;
 	long long		fNoteId;
 	BTextControl*	fTitleControl;
 	BTextView*		fTextView;
 	BColorControl*	fColourControl;
+	BPopUpMenu*		fColourPresetMenu;
+	BMenuItem*		fCustomColourItem;
 	BButton*		fSaveButton;
 };
 
