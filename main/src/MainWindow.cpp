@@ -331,7 +331,7 @@ MainWindow::_InitInterface()
 	fAppMenu->AddItem(new BMenuItem(
 		B_TRANSLATE("Quit"), new BMessage(kMenuAppQuit), 'Q', B_COMMAND_KEY));
 
-	fEventMenu = new BMenu(B_TRANSLATE("Event"));
+	fEventMenu = new BMenu(B_TRANSLATE("Events"));
 	fEventMenu->AddItem(new BMenuItem(
 		B_TRANSLATE_CONTEXT("New" B_UTF8_ELLIPSIS, "EventListView"),
 		new BMessage(kAddEventMessage), 'N', B_COMMAND_KEY));
@@ -398,8 +398,8 @@ MainWindow::_InitInterface()
 
 	fMenuBar->AddItem(fAppMenu);
 	fMenuBar->AddItem(fEventMenu);
-	fMenuBar->AddItem(fCategoryMenu);
 	fMenuBar->AddItem(fNotesMenu);
+	fMenuBar->AddItem(fCategoryMenu);
 	fMenuBar->AddItem(fViewMenu);
 
 	fSidePanelView = new SidePanelView();
