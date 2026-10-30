@@ -2,7 +2,7 @@
 
 set -eu
 
-version="0.7.0"
+version="0.8.0"
 revision="1"
 scriptDirectory="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 sourceDirectory="$(CDPATH= cd -- "$scriptDirectory/.." && pwd)"
@@ -47,6 +47,7 @@ make -C "$sourceDirectory/tests" clean test
 echo "Building Calendar and binding translations..."
 make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory" clean
 make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory"
+make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory" catkeys
 make -C "$sourceDirectory/main" OBJ_DIR="$objectDirectory" bindcatalogs
 
 stageDirectory="$(mktemp -d "${TMPDIR:-/tmp}/calendar-package.XXXXXXXX")"

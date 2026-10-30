@@ -2,7 +2,7 @@ name			hcalendar
 version			@VERSION@-@REVISION@
 architecture		@ARCHITECTURE@
 summary			"A native calendar application for Haiku"
-description		"Calendar manages appointments using native Haiku files, attributes and queries. It provides day, week and month views, categories, reminders, recurring events, its own scheduled task launcher and a persistent Deskbar calendar."
+description		"Calendar manages appointments using native Haiku files, attributes and queries. It provides day, week and month views, categories, reminders, recurring events, coloured Desktop note replicants, its own scheduled task launcher and a persistent Deskbar calendar."
 packager		"sikosis"
 vendor			"Calendar contributors"
 licenses {
@@ -28,4 +28,5 @@ conflicts {
 }
 requires {
 	@HAIKU_REQUIREMENT@
+	cmd:zip
 }

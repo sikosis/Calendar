@@ -46,6 +46,11 @@ SRCS = \
 	 src/NotificationLoop.cpp  \
 	 src/MainWindow.cpp  \
 	 src/MainView.cpp  \
+	 src/NoteEditWindow.cpp  \
+	 src/NoteStore.cpp  \
+	 src/NotesWindow.cpp  \
+	 src/NoteView.cpp  \
+	 src/NoteWindow.cpp  \
 	 src/CalendarView.cpp \
 	 src/Preferences.cpp  \
 	 src/SidePanelView.cpp  \
@@ -56,6 +61,7 @@ SRCS = \
 	 src/utils/ClockTime.cpp  \
 	 src/utils/ColorConverter.cpp  \
 	 src/utils/LifeProgress.cpp  \
+	 src/utils/NoteModel.cpp  \
 	 src/utils/TaskModel.cpp  \
 	 src/utils/TaskSchedule.cpp  \
 	 src/utils/ScriptingUtils.cpp  \

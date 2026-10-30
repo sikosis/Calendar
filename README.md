@@ -1,4 +1,4 @@
-# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar [![platform](https://img.shields.io/badge/platform-Haiku-blue)](https://www.haiku-os.org/) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.7.0-orange) [![hey](https://img.shields.io/badge/scripting-hey-teal)](#scripting)
+# ![Calendar Icon](documentation/images/calendar_icon_64.png) Calendar [![platform](https://img.shields.io/badge/platform-Haiku-blue)](https://www.haiku-os.org/) ![build](https://img.shields.io/badge/build-active-brightgreen) ![license](https://img.shields.io/badge/license-MIT-blue) ![version](https://img.shields.io/badge/version-0.8.0-orange) [![hey](https://img.shields.io/badge/scripting-hey-teal)](#scripting)
 
 Calendar is a native Haiku application to manage your appointments.
 
@@ -8,6 +8,10 @@ including a Deskbar replicant icon showing the current date, hey scripting suppo
 the Event menu provides Calendar's own scheduled task launcher. A configurable year
 progress bar below the month calendar shows how much of the current year has elapsed.
 An optional life progress bar can estimate progress from a birth year and expected age.
+Calendar also includes coloured post-it notes. The Notes manager can create, edit,
+delete, display, print and export notes as ZIP archives. Displayed notes include a
+Haiku replicant handle so they can be dragged onto the Desktop and remain there when
+Calendar is closed. Enable **Show replicants** from Deskbar when the handle is hidden.
 
 ![screenshot](documentation/images/main_window.png)
 
@@ -37,6 +41,7 @@ From the `main` directory, run:
 
 ```sh
 make
+make catkeys
 make bindcatalogs
 ```
 
@@ -62,13 +67,13 @@ packaging/build-hpkg.sh
 The package is written to:
 
 ```
-packages/hcalendar-0.7.0-1-<architecture>.hpkg
+packages/hcalendar-0.8.0-1-<architecture>.hpkg
 ```
 
 Install it with `pkgman`, substituting the generated filename:
 
 ```sh
-pkgman install ./packages/hcalendar-0.7.0-1-x86_64.hpkg
+pkgman install ./packages/hcalendar-0.8.0-1-x86_64.hpkg
 ```
 
 This standalone edition uses the package name `hcalendar` and the
@@ -78,8 +83,9 @@ On the first installation, `pkgman` will offer to remove the older package.
 Calendar's settings directory is unchanged, so existing events, categories,
 tasks and preferences are retained.
 
-Before installing over an existing build, use **Quit** from Calendar's Deskbar
-menu so packagefs can unload the replicant and replace the application.
+Before installing over an existing build, use **Quit** from Calendar's App menu
+or **Quit Calendar** from its Deskbar menu so packagefs can unload the replicant
+and replace the application. **Close** leaves the Deskbar calendar running.
 
 Calendar stores and launches scheduled tasks itself. Its persistent Deskbar
 replicant checks tasks once per minute, including while the main window is
@@ -110,6 +116,8 @@ Calendar supports Haiku scripting through `hey`. Use `hey Calendar GETSUITES` to
 | Jump to today | `hey Calendar DO Today` |
 | New event | `hey Calendar DO NewEvent` |
 | Manage categories | `hey Calendar DO ManageCategories` |
+| New note | `hey Calendar DO NewNote` |
+| Manage notes | `hey Calendar DO ManageNotes` |
 
 ---
 

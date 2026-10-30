@@ -19,6 +19,7 @@ class EventSyncWindow;
 
 extern const char* kAppName;
 extern const char* kSignature;
+extern const uint32 kQuitCalendarCompletely;
 
 
 class App : public BApplication
@@ -45,6 +46,7 @@ public:
 private:
 	bool			_HandleScriptingMessage(BMessage* message);
 	void			_InstallDeskbarReplicant();
+	void			_QuitCompletely();
 
 	MainWindow*		fMainWindow;
 	PreferenceWindow* fPreferenceWindow;

@@ -5,6 +5,7 @@
 
 #include "App.h"
 
+#include <Alert.h>
 #include <Catalog.h>
 #include <Deskbar.h>
 #include <Directory.h>
@@ -34,7 +35,8 @@
 
 const char* kAppName = B_TRANSLATE_SYSTEM_NAME("Calendar");
 const char* kSignature = "application/x-vnd.hcalendar";
-const char* const kVersion = "0.7.0";
+const char* const kVersion = "0.8.0";
+const uint32 kQuitCalendarCompletely = 'kqca';
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "App"
@@ -54,6 +56,10 @@ static property_info kCalendarProperties[] = {
 		B_TRANSLATE_MARK("Open a new event window") },
 	{ "ManageCategories", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
 		B_TRANSLATE_MARK("Open the category manager") },
+	{ "ManageNotes", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Open the notes manager") },
+	{ "NewNote", { B_EXECUTE_PROPERTY }, { B_DIRECT_SPECIFIER },
+		B_TRANSLATE_MARK("Open a new note window") },
 	{ 0 }
 };
 
@@ -202,6 +208,28 @@ App::_InstallDeskbarReplicant()
 
 
 void
+App::_QuitCompletely()
+{
+	BDeskbar deskbar;
+	status_t status = B_OK;
+	if (deskbar.IsRunning() && deskbar.HasItem(kCalendarDeskbarItemName))
+		status = deskbar.RemoveItem(kCalendarDeskbarItemName);
+
+	if (status != B_OK) {
+		BString text(B_TRANSLATE("Calendar could not remove its Deskbar item."));
+		text << "\n\n" << strerror(status);
+		BAlert* alert = new BAlert(B_TRANSLATE("Quit Calendar"), text.String(),
+			B_TRANSLATE("OK"), NULL, NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+		alert->Go();
+		return;
+	}
+
+	PostMessage(B_QUIT_REQUESTED);
+}
+//---------------------------------------------------------------------------------------------------------------------------------//
+
+
+void
 App::AboutRequested()
 {
 	(new AboutWindow())->Show();
@@ -342,6 +370,16 @@ App::_HandleScriptingMessage(BMessage* message)
 		return true;
 	}
 
+	if (message->what == B_EXECUTE_PROPERTY && property == "ManageNotes") {
+		SendScriptingReply(message, fMainWindow->PostMessage(kMenuNotes));
+		return true;
+	}
+
+	if (message->what == B_EXECUTE_PROPERTY && property == "NewNote") {
+		SendScriptingReply(message, fMainWindow->PostMessage(kMenuNewNote));
+		return true;
+	}
+
 	return false;
 }
 //---------------------------------------------------------------------------------------------------------------------------------//
@@ -358,6 +396,9 @@ App::MessageReceived(BMessage* message)
 	}
 
 	switch (message->what) {
+		case kQuitCalendarCompletely:
+			_QuitCompletely();
+			break;
 
 		case kMenuAppPref:
 		{

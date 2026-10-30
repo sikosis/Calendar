@@ -27,6 +27,7 @@
 #include "EventTabView.h"
 #include "EventWindow.h"
 #include "MainView.h"
+#include "NotesWindow.h"
 #include "PreferenceWindow.h"
 #include "Preferences.h"
 #include "ResourceLoader.h"
@@ -47,7 +48,8 @@ MainWindow::MainWindow()
 		B_TRANSLATE_SYSTEM_NAME("Calendar"), B_TITLED_WINDOW,
 		B_AUTO_UPDATE_SIZE_LIMITS),
 	fEventWindow(NULL),
-	fTasksWindow(NULL)
+	fTasksWindow(NULL),
+	fNotesWindow(NULL)
 {
 	SetPulseRate(500000);
 
@@ -77,8 +79,11 @@ void
 MainWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case kMenuAppQuit:
+		case kMenuAppClose:
 			be_app->PostMessage(B_QUIT_REQUESTED);
+			break;
+		case kMenuAppQuit:
+			be_app->PostMessage(kQuitCalendarCompletely);
 			break;
 		case kAddEventMessage:
 			_LaunchEventManager(NULL);
@@ -92,6 +97,19 @@ MainWindow::MessageReceived(BMessage* message)
 			break;
 		case kTasksWindowQuitting:
 			fTasksWindow = NULL;
+			break;
+		case kMenuNotes:
+		case kMenuNewNote:
+			if (fNotesWindow == NULL) {
+				fNotesWindow = new NotesWindow(BMessenger(this));
+				fNotesWindow->Show();
+			}
+			fNotesWindow->Activate();
+			if (message->what == kMenuNewNote)
+				fNotesWindow->PostMessage(kNewNoteRequested);
+			break;
+		case kNotesWindowQuitting:
+			fNotesWindow = NULL;
 			break;
 		case kEditEventMessage:
 		case kDuplicateEventMessage:
@@ -309,6 +327,8 @@ MainWindow::_InitInterface()
 	// BMessage(kMenuSyncGCAL))); fAppMenu->AddItem(fSyncMenu);
 	fAppMenu->AddSeparatorItem();
 	fAppMenu->AddItem(new BMenuItem(
+		B_TRANSLATE("Close"), new BMessage(kMenuAppClose), 'W', B_COMMAND_KEY));
+	fAppMenu->AddItem(new BMenuItem(
 		B_TRANSLATE("Quit"), new BMessage(kMenuAppQuit), 'Q', B_COMMAND_KEY));
 
 	fEventMenu = new BMenu(B_TRANSLATE("Event"));
@@ -342,6 +362,12 @@ MainWindow::_InitInterface()
 	fCategoryMenu->AddItem(new BMenuItem(B_TRANSLATE("Manage" B_UTF8_ELLIPSIS),
 		new BMessage(kMenuCategoryEdit)));
 
+	fNotesMenu = new BMenu(B_TRANSLATE("Notes"));
+	fNotesMenu->AddItem(new BMenuItem(B_TRANSLATE("New note" B_UTF8_ELLIPSIS),
+		new BMessage(kMenuNewNote)));
+	fNotesMenu->AddItem(new BMenuItem(B_TRANSLATE("Manage" B_UTF8_ELLIPSIS),
+		new BMessage(kMenuNotes)));
+
 	BMessage* agendaMsg = new BMessage(kChangeListMode);
 	agendaMsg->AddUInt8("mode", (uint8) kAgendaView);
 	BMessage* hiddenMsg = new BMessage(kChangeListMode);
@@ -373,6 +399,7 @@ MainWindow::_InitInterface()
 	fMenuBar->AddItem(fAppMenu);
 	fMenuBar->AddItem(fEventMenu);
 	fMenuBar->AddItem(fCategoryMenu);
+	fMenuBar->AddItem(fNotesMenu);
 	fMenuBar->AddItem(fViewMenu);
 
 	fSidePanelView = new SidePanelView();

@@ -138,7 +138,7 @@ pre.terminal {
 <img src="./images/calendar_icon_64.png" alt="Calendar icon" /></a>
 <p><span style="font-size: 1.5em; font-weight:bold">Calendar's User Documentation</span></p>
 <hr />
-<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#tasks">Tasks</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#scripting">Scripting</a> — <a href="#help">Help</a></p>
+<p id="index"><a href="#eventmanager">Event manager</a> — <a href="#categorymanager">Category manager</a> — <a href="#notes">Notes</a> — <a href="#tasks">Tasks</a> — <a href="#settings">Settings</a> — <a href="#reminders">Reminders</a> — <a href="#scripting">Scripting</a> — <a href="#help">Help</a></p>
 </div>
 <hr />
 <p><br /></p>
@@ -155,6 +155,8 @@ pre.terminal {
 <p>To the right is the actual list of events. With the tabs at the top, you set the view to show all events for that <span class="menu">Day</span>, <span class="menu">Week</span>, or <span class="menu">Month</span>.</p>
 
 <p>The <span class="menu">Filter</span> field narrows the event list automatically as you type. Delete the filter text or click <span class="button">Clear</span> to show all events again.</p>
+
+<p><span class="menu">App | Close</span> closes Calendar's running interface while leaving its persistent Deskbar calendar active. <span class="menu">App | Quit</span> closes Calendar and removes the Deskbar item completely.</p>
 
 <p>Right-click an event to get a context menu to create a <span class="menu">New</span> event, or <span class="menu">Edit</span>, <span class="menu">Duplicate</span>, <span class="menu">Delete</span>, <span class="menu">Cancel</span> or <span class="menu">Hide</span> an existing event. These actions are also available from the <span class="menu">Event</span> menu. Duplicating opens a new event pre-filled with the selected event's details; saving it creates a separate event.<br />
 Hidden and deleted events can remain visible by activating <span class="menu">View | Show hidded/deleted events</span> and are then tinted red. Deleted events are moved to the system's Trash. If you empty the Trash, your events will be truely gone and cannot be "un-deleted" any more!</p>
@@ -196,6 +198,18 @@ cannot be deleted but can be modified. Click on <span class="button">New...</spa
 </div>
 
 <p>Here you simply enter the name of the category and choose a color for it.</p>
+
+<h2>
+<a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>
+<a id="notes" name="notes">Notes</a></h2>
+
+<p><span class="menu">Notes | Manage...</span> opens the Notes manager. It provides <span class="button">New...</span>, <span class="button">Edit...</span>, <span class="button">Delete</span>, <span class="button">Display</span>, <span class="button">Archive (ZIP)</span> and <span class="button">Print...</span> controls. Every note can have a title, body text and its own post-it colour. Notes are stored in Calendar's settings.</p>
+
+<p><span class="button">Display</span> opens the selected note in its own post-it window. Enable <span class="menu">Show replicants</span> in Deskbar if the small drag handle is hidden, then drag that handle onto the Desktop. The Desktop copy is a Haiku replicant containing the note's text and colour, so it remains available when Calendar is closed. Editing or deleting the saved note does not change replicant copies that are already on the Desktop.</p>
+
+<p><span class="button">Archive (ZIP)</span> exports the selected note as a text file inside a ZIP archive. <span class="button">Print...</span> uses Haiku's normal print panel and print server.</p>
+
+<p>From Terminal, <span class="path">hey Calendar DO NewNote</span> opens a new note editor and <span class="path">hey Calendar DO ManageNotes</span> opens the manager.</p>
 
 <h2>
 <a href="#"><img src="images/up.png" style="border:none;float:right" alt="index" /></a>

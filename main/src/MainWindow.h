@@ -15,6 +15,7 @@ class Event;
 class EventTabView;
 class EventWindow;
 class MainView;
+class NotesWindow;
 class Preferences;
 class PreferenceWindow;
 class SidePanelView;
@@ -26,6 +27,8 @@ static const uint32 kMenuCategoryEdit = 'kmce';
 static const uint32 kMenuHelp = 'kmhl';
 static const uint32 kMenuSyncGCAL = 'kmsg';
 static const uint32 kMenuTasks = 'kmts';
+static const uint32 kMenuNotes = 'kmnt';
+static const uint32 kMenuNewNote = 'kmnn';
 
 static const int kAddEventMessage = 1005;
 
@@ -53,16 +56,19 @@ private:
 	BDate			_GetSelectedCalendarDate() const;
 	void			_ToggleEventMenu(BMessage* msg);
 
-	static const int kMenuAppQuit = 1000;
+	static const int kMenuAppClose = 1000;
+	static const int kMenuAppQuit = 1001;
 
 
 	MainView*		fMainView;
 	EventWindow*	fEventWindow;
 	TasksWindow*	fTasksWindow;
+	NotesWindow*	fNotesWindow;
 	BMenuBar*		fMenuBar;
 	BMenu*			fAppMenu;
 	BMenu*			fEventMenu;
 	BMenu*			fCategoryMenu;
+	BMenu*			fNotesMenu;
 	BMenu*			fViewMenu;
 	BMenu*			fSyncMenu;
 	SidePanelView*	fSidePanelView;
